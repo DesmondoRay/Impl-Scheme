@@ -22,7 +22,7 @@ int main()
 	env["list"] = Object(Procedure(Primitive::make_list));
 	env["display"] = Object(Procedure(Primitive::display));
 
-	eval_run(env);
+	run_evaluator(env);
 
 	return 0;
 }

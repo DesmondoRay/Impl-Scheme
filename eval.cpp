@@ -2,78 +2,116 @@
 
 #include "eval.h"
 
+static vector<string> keywords{ 
+	"define", "if", "set", "lambda", "begin", "let", "cond", "else" };
+
 /* Evaluator start. */
-void eval_run(Environment& env)
+void run_evaluator(Environment& env)
 {
 	while (true) {
 		prompt();
 		string input = get_input();
-		if (input.empty()) continue;
+		if (input.empty()) 
+			continue;
+
 		vector<string> split = split_input(input);
-		vector<Object> obs = transform(split);
-#ifndef NDEBUG
-		cout << "DEBUG eval_run(): ";
-		for (auto &ob : obs)
-			cout << ob.get_type() << ", ";
-		cout << endl;
-#endif
-		Object result = eval(obs, env);
+		Object result = eval(split, env);
 		print_result(result);
 	}
 }
 
-/* Transform vector of strings to vector of Objects. */
-vector<Object> transform(vector<string>& split)
+/* Evaluating a expression. */
+Object eval(vector<string>& split, Environment& env)
 {
-	vector<Object> result;
-	for (auto &s : split) {
-		if (s == "(" || s == ")")
-			continue;
-		else
-			if (isdigit(s[0]))
-				result.push_back(Object(stoi(s)));
-			else
-				result.push_back(Object(s));
+	delete_ends_parentheses(split);
+	if (split.empty())
+		return Object();
+	else if (split.size() == 1)
+		return eval(split[0], env);
+	else {
+		/* Eval operator -- proc */
+		Object proc = eval(split[0], env);
+#ifndef NDEBUG
+		cout << "DEBUG eval(): " << proc.get_type() << endl;
+#endif
+		/* Eval arguments -- args */
+		vector<Object> args;
+		for (int i = 1; i < split.size(); i++) {
+			/* Eval a subexpression, example: */
+			/* expression: "(display (cons 1 2))", sub_exp: "(cons 1 2)" */
+			if (split[i] == "(") {
+				auto it = find(split.begin() + i, split.end(), ")");
+				if (it == split.end()) {
+					cerr << "ERROR: illegal expression" << endl;
+					exit(0); /* !!!!!!!!!!!!!!!!!!!!!!!!!! */
+				}
+				vector<string> sub_exp(split.begin() + i, it + 1);
+				args.push_back(eval(sub_exp, env));
+				i = it - split.begin() + 1;
+			}
+			/* Eval a single operand -- self-evaluating */
+			else 
+				args.push_back(eval(split[i], env));
+		}
+		return apply_proc(proc, args, env);
 	}
-	return result;
 }
 
-/* Evaluating a expression. */
-Object eval(vector<Object>& obs, Environment& env)
+/* Delete parentheses of two ends */
+void delete_ends_parentheses(vector<string>& split)
 {
-	if (obs.empty())
-		return Object();
-	else if (obs.size() == 1) {
-		return eval(obs[0], env);
-	}
-	else {
-		Object first = obs[0];
-#ifndef NDEBUG
-		cout << "DEBUG eval(): " << first.get_string() << endl;
-#endif
-		Object proc = eval(first, env);
-		vector<Object> args;
-		for (int i = 1; i < obs.size(); i++) {
-			args.push_back(obs[i]);
-		}
-		return apply_proc(*(proc.get_proc()), args, env);
+	if (split.empty())
+		return;
+	if (split[0] == "(") {
+		split.pop_back();
+		split.erase(split.begin());
 	}
 }
 
 /* Evaluating a single object. */
-Object eval(Object& ob, Environment& env)
+Object eval(string& str, Environment& env)
 {
-	if (ob.get_type() == INTEGER || ob.get_type() == REAL)
-		return ob;
-	if (ob.get_type() == STRING)
-		return env[ob.get_string()];
+	/* NUMBER or REAL */
+	if (isdigit(str[0])) {
+		if (str.find('.') != str.size())
+			return Object(stod(str));
+		else
+			return Object(stoi(str));
+	}
+	/* BOOLEAN, true: '#t', false: '#f' */
+	else if (str[0] == '#') {
+		bool val = (str[1] == 't' ? true : false);
+		return Object(val);
+	}
+	/* STRING */
+	else if (str[0] == '"') {
+		return Object(str);
+	}
+	/* KEYWORD or PROCEDURE(or variable) */
+	/* example: "(define a 3)" --> variable: a, env["a"] = 3 */
+	else {
+		if (find(keywords.begin(), keywords.end(), str) != keywords.end())
+			return Object(str, KEYWORD);
+		else if (env.find(str) != env.end())
+			return env[str];
+		else {
+			cerr << "ERROR: unknown symbol -- " << str << endl;
+			Primitive::quit(vector<Object>{});
+		}
+	}
 }
 
 /* Call proc with obs. */
-Object apply_proc(Procedure &proc, vector<Object>& obs, Environment& env)
+Object apply_proc(Object &proc, vector<Object>& obs, Environment& env)
 {
-	if (proc.get_type() == PRIMITIVE)
-		return proc.get_primitive()(obs);
-	if (proc.get_type() == COMPOUND)
+	if (proc.get_type() != PROCEDURE) {
+		cerr << "ERROR: -- apply_proc()" << endl;
+		exit(0);
+	}
+	shared_ptr<Procedure> op = proc.get_proc();
+	if (op->get_type() == PRIMITIVE)
+		return op->get_primitive()(obs);
+	/* Compound procedure -- lambda procedure */
+	else if (op->get_type() == COMPOUND)
 		;/* to do */
 }

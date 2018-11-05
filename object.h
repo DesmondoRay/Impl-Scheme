@@ -14,7 +14,10 @@ class Procedure;
 class Cons;
 class List;
 
-enum { UNASSIGNED = 0, INTEGER, REAL, BOOLEAN, STRING, PROCEDURE, CONS, LIST };
+enum { 
+	UNASSIGNED = 0, INTEGER, REAL, BOOLEAN, 
+	STRING, PROCEDURE, CONS, LIST, KEYWORD
+};
 
 /* Object save several types of data */
 class Object {
@@ -33,6 +36,11 @@ public:
 		type(CONS), cons(make_shared<Cons>(c)) {}
 	explicit Object(const List& l) : 
 		type(LIST), lst(make_shared<List>(l)) {}
+	Object(const string& s, int t) : type(t), str(s) { 
+		if (t != KEYWORD)
+			cerr << "ERROR: t must be KEYWORD -- " 
+				 << "Object(const string& s, int t)" << endl;
+	}
 
 	/* Operator= and destructor */
 	Object& operator=(const Object& ob);
