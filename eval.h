@@ -1,4 +1,4 @@
-/* eval */
+/* Header file of evaluator's functions */
 
 #ifndef EVAL_H_
 #define EVAL_H_

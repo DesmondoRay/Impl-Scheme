@@ -1,4 +1,4 @@
-/* eval */
+/* Implement of evaluator's functions */
 
 #include "eval.h"
 

@@ -1,19 +1,20 @@
 /* Input and Output function */
 
 #include "io_function.h"
+#include "primitive_procedures.h"
 
 /* Print Scheme prompt for input. */
 void prompt()
 {
-	cout << ">> Eval input: " << endl;
+	cout << ">>> Eval input: " << endl;
 }
 
 /* Print evaluation result. */
 void print_result(const Object& ob)
 {
-	cout << " >> Eval value: " << endl;
-	if (ob.get_type() == INTEGER)
-		cout << ob.get_integer() << endl;
+	cout << ">>> Eval value: " << endl;
+	Primitive::display(vector<Object>{ob});
+	cout << endl;
 }
 
 /* Read user input. */
@@ -41,7 +42,7 @@ string get_input(istream &in)
 
 		if (ctmp == '(') cntParantheses++;
 		else if (ctmp == ')') cntParantheses--;
-		else if (ctmp == '\"') cntQuotations++;
+		else if (ctmp == '"') cntQuotations++;
 
 		/* At end of line, check if user's input is correct or complete. */
 		if (ctmp == '\n') {
