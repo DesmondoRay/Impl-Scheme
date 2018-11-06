@@ -55,6 +55,9 @@ Object eval_define(vector<string>& args);
 /* Handle with "define" expression */
 Object eval_lambda(vector<string>& exp);
 
+/* Return true if object is some kinds of "true" */
+bool is_true(Object& ob);
+
 /* Handler with "if" expression */
 Object eval_if(vector<string>& exp);
 

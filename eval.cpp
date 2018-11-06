@@ -363,7 +363,7 @@ Object eval_lambda(vector<string>& exp)
 /* Return true if object is some kinds of "true",
  * Note: In Scheme, only "#f" is false, everything else is true. :) hopefully
  */
-static bool is_true(Object& ob)
+bool is_true(Object& ob)
 {
 	if (ob.get_type() == BOOLEAN)
 		return ob.get_boolean();

@@ -187,7 +187,7 @@ Object Primitive::equal(vector<Object>& obs) {
 	else if (type1 == INTEGER)
 		return Object(obs[0].get_integer() == obs[1].get_integer());
 	else if (type1 == REAL)
-		return Object(obs[0].get_real() == obs[1].get_real());
+		return Object(abs(obs[0].get_real() - obs[1].get_real()) <= 1e-9);
 	else if (type1 == STRING || type1 == KEYWORD)
 		return Object(obs[0].get_string() == obs[1].get_string());
 	else if (type1 == BOOLEAN)

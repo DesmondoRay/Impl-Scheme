@@ -43,7 +43,7 @@ bool Object::operator_inner(const Object& ob, const string& op) {
 	double rhs = (ob.get_type() == INTEGER ? ob.get_integer() : ob.get_real());
 
 	return (op == "<" ? (lhs < rhs) : 
-		(op == ">" ? (lhs > rhs) : (abs(lhs - rhs) < 1e-9)));
+		(op == ">" ? (lhs > rhs) : (abs(lhs - rhs) <= 1e-9)));
 }
 
 bool Object::operator==(const Object& ob) {
