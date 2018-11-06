@@ -40,17 +40,20 @@ Object& Object::operator=(const Object& ob) {
 }
 
 Object::Object(const string& s, int t) : type(t), str(s) {
-	if (t != KEYWORD)
-		cerr << "ERROR: t must be KEYWORD -- "
-		<< "Object(const string& s, int t)" << endl;
+	if (t != KEYWORD) {
+		error_handler("ERROR(runtime): t must be KEYWORD "
+			"-- Constructor: Object(const string& s, int t)");
+	}
 }
 
 Cons::Cons(const vector<Object> &obs) {
-	if (obs.size() != 2) {
-		cerr << "error: Cons(const vector<Object>), vector.size() must be 2"
-			<< endl;
-
-	}
+	if (obs.size() != 2)
+		error_handler("ERROR(scheme): number of operands number must be 2 "
+			"-- cons, usage: (cons 1 2)"
+#ifndef NDEBUG
+			"\nDEBUG: Construct: Cons(const vector<Object>&)"
+#endif
+		);
 	else
 		pir = make_pair(obs[0], obs[1]);
 }

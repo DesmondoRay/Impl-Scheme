@@ -3,21 +3,23 @@
 #include "eval.h"
 
 /* Declartion static env */
-Environment Evaluator::env;
-
-/* Constructor */
-Evaluator::Evaluator() {
-	if (env.empty())
-		env.push_back(unordered_map<string, Object>());
-	initialize_environment();
-}
+/* env[0]: global environment, env[n]: local environment, for example:
+* 1. "(define a 3)" --> env[0]["a"] = 3, "a" is defined in the
+*	  global environment;
+* 2. "(define (func a b)
+*	     (define c 4)
+*       (+ a b c))"
+*    --> env[0]["func"] = <...compound procedure>, env[1]["c"] = 4,
+*    "c" is defined in the local environment.
+*/
+static Environment envs;
 
 /* Evaluator start. */
-void Evaluator::run_evaluator()
+void run_evaluator()
 {
 	/* Keep only the global environment */
-	if (env.size() > 1)
-		env.erase(env.begin() + 1, env.end()); 
+	if (envs.size() > 1)
+		envs.erase(envs.begin() + 1, envs.end()); 
 
 	while (true) {
 		prompt();
@@ -32,14 +34,29 @@ void Evaluator::run_evaluator()
 }
 
 /* Reset environment, restart evaluator then */
-void Evaluator::reset_evaluator()
+void reset_evaluator()
 {
 	initialize_environment();
 	run_evaluator();
 }
 
+/* Handler error */
+void error_handler(const string& s)
+{
+	cerr << s << endl;
+	cout << "Input [Enter] or [Y/y] to continue and input others to quit: ";
+	string input;
+	cin >> input;
+	if (!input.empty()) {
+		if (input[0] == '\n' || input[0] == 'y' || input[0] == 'Y')
+			run_evaluator();
+		else
+			exit(0);
+	}
+}
+
 /* Evaluating a expression. */
-Object Evaluator::eval(vector<string>& split)
+Object eval(vector<string>& split)
 {
 	delete_ends_parentheses(split);
 	if (split.empty())
@@ -60,8 +77,14 @@ Object Evaluator::eval(vector<string>& split)
 			if (split[i] == "(") {
 				auto it = find(split.begin() + i, split.end(), ")");
 				if (it == split.end()) {
-					cerr << "ERROR: illegal expression -- eval()" << endl;
-					run_evaluator();
+					string error_msg ("ERROR(scheme): illegal expression --");
+					error_msg += " (";
+					for (auto &s : split) error_msg += s + " ";
+					error_msg += ")";
+#ifndef NDEBUG
+					error_msg += "\nDEBUG: Object eval(vector<string>& split)";
+#endif
+					error_handler(error_msg);
 				}
 				vector<string> sub_exp(split.begin() + i, it + 1);
 				args.push_back(eval(sub_exp));
@@ -76,7 +99,7 @@ Object Evaluator::eval(vector<string>& split)
 }
 
 /* Delete parentheses of two ends */
-void Evaluator::delete_ends_parentheses(vector<string>& split)
+void delete_ends_parentheses(vector<string>& split)
 {
 	if (split.empty())
 		return;
@@ -87,7 +110,7 @@ void Evaluator::delete_ends_parentheses(vector<string>& split)
 }
 
 /* Evaluating a single object. */
-Object Evaluator::eval(string& str)
+Object eval(string& str)
 {
 	/* NUMBER or REAL */
 	if (isdigit(str[0])) {
@@ -115,32 +138,38 @@ Object Evaluator::eval(string& str)
 			 * last environment(local) to the first one(global) 
 			 */
 #ifndef NDEBUG
-			cout << "DEBUG eval(): " << env.size() << endl;
+			cout << "DEBUG eval(): " << envs.size() << endl;
 #endif
 #if 0
-			for (auto &e : env) {
+			for (auto &e : envs) {
 				if (e.find(str) != e.end())
 					return e[str];
 			}
 #endif
 #if 1
-			for (auto it = env.rbegin(); it != env.rend(); ++it) {
+			for (auto it = envs.rbegin(); it != envs.rend(); ++it) {
 				if (it->find(str) != it->end())
 					return (*it)[str];
 			}
 #endif
-			cerr << "ERROR: unknown symbol: " << str << " -- eval()" << endl;
-			run_evaluator();
+			string error_msg("ERROR(scheme): unknown symbol -- ");
+			error_msg += str;
+#ifndef NDEBUG
+			error_msg += "\nDEBUG: Object eval(string& str)";
+#endif
+			error_handler(error_msg);
 		}
 	}
 }
 
 /* Call proc with obs. */
-Object Evaluator::apply_proc(Object &proc, vector<Object>& obs)
+Object apply_proc(Object &proc, vector<Object>& obs)
 {
 	if (proc.get_type() != PROCEDURE) {
-		cerr << "ERROR: unknown procedure -- apply_proc()" << endl;
-		run_evaluator();
+#ifndef NDEBUG
+		cout << "DEBUG: Object apply_proc(Object &proc, vector<Object>& obs)" << endl;
+#endif
+		error_handler("ERROR: unknown procedure -- apply_proc()");
 	}
 	shared_ptr<Procedure> op = proc.get_proc();
 	if (op->get_type() == PRIMITIVE)
@@ -150,12 +179,15 @@ Object Evaluator::apply_proc(Object &proc, vector<Object>& obs)
 		;/* to do */
 }
 
-void Evaluator::initialize_environment()
+void initialize_environment()
 {
-	env[0]["+"] = Object(Procedure(Primitive::add));
-	env[0]["quit"] = Object(Procedure(Primitive::quit));
-	env[0]["exit"] = Object(Procedure(Primitive::quit));
-	env[0]["cons"] = Object(Procedure(Primitive::make_cons));
-	env[0]["list"] = Object(Procedure(Primitive::make_list));
-	env[0]["display"] = Object(Procedure(Primitive::display));
+	if (envs.empty())
+		envs.push_back(unordered_map<string, Object>());
+
+	envs[0]["+"] = Object(Procedure(Primitive::add));
+	envs[0]["quit"] = Object(Procedure(Primitive::quit));
+	envs[0]["exit"] = Object(Procedure(Primitive::quit));
+	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
+	envs[0]["list"] = Object(Procedure(Primitive::make_list));
+	envs[0]["display"] = Object(Procedure(Primitive::display));
 }

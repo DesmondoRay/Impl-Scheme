@@ -12,8 +12,8 @@ using namespace std;
 
 int main()
 {
-	Evaluator Eval;
-	Eval.run_evaluator();
+	initialize_environment();
+	run_evaluator();
 
 	return 0;
 }

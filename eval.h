@@ -16,42 +16,28 @@ static vector<string> keywords{
 
 using Environment = vector<unordered_map<string, Object>>;
 
-class Evaluator {
-public:
-	/* Constructor */
-	Evaluator();
+/* Reset evaluator, reset environment */
+void reset_evaluator();
 
-	/* Evaluator start. */
-	void run_evaluator();
+/* Handler error */
+void error_handler(const string& s);
 
-	/* Reset evaluator, reset environment */
-	void reset_evaluator();
-private:
-	/* Evaluating a expression. */
-	Object eval(vector<string>& split);
+/* Evaluator start. */
+void run_evaluator();
 
-	/* Delete parentheses of two ends */
-	void delete_ends_parentheses(vector<string>& split);
+/* Evaluating a expression. */
+Object eval(vector<string>& split);
 
-	/* Evaluating a single string. */
-	Object eval(string& str);
+/* Delete parentheses of two ends */
+void delete_ends_parentheses(vector<string>& split);
 
-	/* Call proc with obs. */
-	Object apply_proc(Object &proc, vector<Object>& obs);
+/* Evaluating a single string. */
+Object eval(string& str);
 
-	/* Reset the global environment. */
-	void initialize_environment();
+/* Call proc with obs. */
+Object apply_proc(Object &proc, vector<Object>& obs);
 
-	/* env[0]: global environment, env[n]: local environment, for example:
-	 * 1. "(define a 3)" --> env[0]["a"] = 3, "a" is defined in the 
-	 *	  global environment;
-	 * 2. "(define (func a b)
-	 *	     (define c 4)
-	 *       (+ a b c))"
-	 *    --> env[0]["func"] = <...compound procedure>, env[1]["c"] = 4,
-	 *    "c" is defined in the local environment.
-	 */
-	static Environment env;
-};
+/* Reset the global environment. */
+void initialize_environment();
 
 #endif
