@@ -153,7 +153,6 @@ void test_define()
 	// test("(f 1 2)", Object(1 + 2 + 5));
 }
 
-
 /* Test lambda expression */
 void test_lambda()
 {
@@ -178,7 +177,7 @@ void run_test()
 	test_define();
 	test_primitive_2();
 	test_lambda();
-
+	
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
 	// test_file();
