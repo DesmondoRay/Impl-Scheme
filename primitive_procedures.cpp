@@ -116,6 +116,35 @@ Object Primitive::div(vector<Object>& obs)
 	return Object(quotient);	// Result's type is REAL
 }
 
+/* Return the true if obs[0] < obs[1] < obs[2] < ... < obs[n] */
+Object Primitive::less(vector<Object>& obs)
+{
+	bool result = true;
+	for (int i = 0; i < obs.size() - 1; i++) {
+		result &= (obs[i] < obs[i + 1]);
+	}
+	return Object(result);
+}
+
+/* Return the true if obs[0] > obs[1] > obs[2] > ... > obs[n] */
+Object Primitive::greater(vector<Object>& obs)
+{
+	bool result = true;
+	for (int i = 0; i < obs.size() - 1; i++) {
+		result &= (obs[i] > obs[i + 1]);
+	}
+	return Object(result);
+}
+
+/* Return true if obs[0] == obs[1] == obs[2] == ... == obs[n] */
+Object Primitive::equal(vector<Object>& obs) {
+	bool result = true;
+	for (int i = 0; i < obs.size() - 1; i++) {
+		result &= (obs[i] == obs[i + 1]);
+	}
+	return Object(result);
+}
+
 /* Return the pair of obs as an Object */
 Object Primitive::make_cons(vector<Object>& obs) 
 {

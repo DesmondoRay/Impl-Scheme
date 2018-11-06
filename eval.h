@@ -55,4 +55,7 @@ Object eval_define(vector<string>& args);
 /* Handle with "define" expression */
 Object eval_lambda(vector<string>& exp);
 
+/* Handler with "if" expression */
+Object eval_if(vector<string>& exp);
+
 #endif

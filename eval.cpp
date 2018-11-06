@@ -24,6 +24,13 @@ void initialize_environment()
 	envs[0]["-"] = Object(Procedure(Primitive::sub));
 	envs[0]["*"] = Object(Procedure(Primitive::mul));
 	envs[0]["/"] = Object(Procedure(Primitive::div));
+	envs[0]["<"] = Object(Procedure(Primitive::less));
+	envs[0][">"] = Object(Procedure(Primitive::greater));
+	/* Note: = can take multiple arguments; */
+	/* eq? and equal? only takes two arguments, I'm not going to re-implement it. */
+	envs[0]["="] = Object(Procedure(Primitive::equal));
+	envs[0]["eq?"] = Object(Procedure(Primitive::equal));
+	envs[0]["equal?"] = Object(Procedure(Primitive::equal));
 	envs[0]["quit"] = Object(Procedure(Primitive::quit));
 	envs[0]["exit"] = Object(Procedure(Primitive::quit));
 	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
@@ -351,10 +358,57 @@ Object eval_lambda(vector<string>& exp)
 	return Object(proc);
 }
 
+/* Return true if object is some kinds of "true",
+ * Note: In Scheme, only "#f" is false, everything else is true. :) hopefully
+ */
+static bool is_true(Object& ob)
+{
+	if (ob.get_type() == BOOLEAN)
+		return ob.get_boolean();
+	return true;
+}
+
 /* Handler with "if" expression, for example: 
- * "(if (> a 2) (+ a 3) (- a 1))" --> predicate: "(> a 2)", 
- * consequent: "(+ a 3)", alternative: "(- a 1)".
+ * "(if (> a 2) (+ a 3) (- a 1))" --> exp: "(> a 2) (+ a 3) (- a 1)",
+ * predicate: "(> a 2)", consequent: "(+ a 3)", alternative: "(- a 1)".
  */
 Object eval_if(vector<string>& exp) {
-	;
+	Object predicate, consequent, alternative;
+	/* Evaluate predicate */
+	if (exp.empty())
+		error_handler("");
+	else if (exp[0] == "(") {
+		predicate = eval(get_subexp(exp));
+	}
+	else {
+		predicate = eval(exp[0]);
+		exp.erase(exp.begin());
+	}
+
+	if (exp.empty())
+		error_handler("ERROR(scheme): Ill-formed special -- if");
+
+	/* If predicate is true, return consequent */
+	if (is_true(predicate)) {
+		if (exp[0] == "(")
+			return eval(get_subexp(exp));
+		else {
+			return eval(exp[0]);
+			exp.erase(exp.begin());
+		}
+	}
+	else {
+		/* Skip consequent */
+		if (exp[0] == "(")
+			get_subexp(exp);
+		else
+			exp.erase(exp.begin());
+
+		if (exp.empty())	/* Alternative could be empty */
+			return Object();
+		else if (exp[0] == "(")
+			return eval(get_subexp(exp));
+		else
+			return eval(exp[0]);
+	}
 }

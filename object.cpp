@@ -3,7 +3,7 @@
 #include "object.h"
 #include "eval.h"
 
-void Object::inner(const Object& ob)
+void Object::copy_inner(const Object& ob)
 {
 	if (type == STRING || type == KEYWORD)
 		str = ob.get_string();
@@ -22,24 +22,38 @@ void Object::inner(const Object& ob)
 }
 
 Object::Object(const Object& ob) : type(ob.get_type()) {
-	inner(ob);
+	copy_inner(ob);
 }
 
 Object& Object::operator=(const Object& ob) {
 	type = ob.get_type();
-	inner(ob);
+	copy_inner(ob);
 	return *this;
 }
 
+bool Object::operator_inner(const Object& ob, const string& op) {
+	if (!is_number() && !ob.is_number()) {
+		string error_msg("ERROR(scheme): passed a ");
+		error_msg += ob.get_type_str();
+		error_msg += " to " + op + ", it only takes integer and real.";
+		error_handler(error_msg);
+	}
+
+	double lhs = (type == INTEGER ? integer : real);
+	double rhs = (ob.get_type() == INTEGER ? ob.get_integer() : ob.get_real());
+
+	return (op == "<" ? (lhs < rhs) : 
+		(op == ">" ? (lhs > rhs) : (abs(lhs - rhs) < 1e-9)));
+}
+
 bool Object::operator==(const Object& ob) {
+	if (is_number() && ob.is_number())
+		return operator_inner(ob, "=");
+
 	if (type != ob.get_type())
 		return false;
 	if (type == STRING || type == KEYWORD)
 		return str == ob.get_string();
-	else if (type == INTEGER)
-		return integer == ob.get_integer();
-	else if (type == REAL)
-		return abs(real - ob.get_real()) <= 1e-9;
 	else if (type == BOOLEAN)
 		return boolean == ob.get_boolean();
 	/*
@@ -51,6 +65,14 @@ bool Object::operator==(const Object& ob) {
 		return lst == ob.get_list();
 	*/
 	return true;
+}
+
+bool Object::operator<(const Object& ob) {
+	return operator_inner(ob, "<");
+}
+
+bool Object::operator>(const Object& ob) {
+	return operator_inner(ob, ">");
 }
 
 Object::Object(const string& s, int t) : type(t), str(s) {

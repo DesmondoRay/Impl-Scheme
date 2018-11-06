@@ -43,6 +43,8 @@ public:
 	/* Operator= and destructor */
 	Object& operator=(const Object& ob);
 	bool operator==(const Object& ob);
+	bool operator<(const Object& ob);
+	bool operator>(const Object& ob);
 	~Object() {}
 
 	/* Others */
@@ -51,6 +53,7 @@ public:
 	string get_type_str() const;
 	int get_integer() const { return integer; }
 	double get_real() const { return real; }
+	bool is_number() const { return type == INTEGER || type == REAL; }
 	bool get_boolean() const { return boolean; }
 	string get_string() const { return str; }
 	shared_ptr<Procedure> get_proc() const { return proc; }
@@ -58,11 +61,14 @@ public:
 	shared_ptr<List> get_list() const { return lst; }
 	
 private:
-	void inner(const Object& ob);
+	/* Used to copy constructor and copy control*/
+	void copy_inner(const Object& ob); 
+	/* Used to operator< and operator> */
+	bool operator_inner(const Object& ob, const string& op);
 	int						type;
+	bool					boolean;
 	int						integer;
 	double					real;
-	bool					boolean;
 	string					str;
 	shared_ptr<Procedure>	proc;
 	shared_ptr<Cons>		cons;

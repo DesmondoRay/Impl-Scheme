@@ -64,6 +64,21 @@ void test_primitive_1()
 	test("(/ 2 3)", Object(2.0 / 3));
 }
 
+/* Test <, >, =/eq?/equal? */
+void test_primitive_2() 
+{
+	test("(< 1 2)", Object(1 < 2));
+	//test("(< -1 -2)", Object(-1 < -2));
+	test("(< 1.2 3.2)", Object(1.2 < 3.2));
+	test("(< 1 1.0)", Object(1 < 1.0));
+	test("(> 1 2)", Object(1 > 2));
+	//test("(> -1 -2)", Object(-1 > -2));
+	test("(> 1 1.0)", Object(1 > 1.0));
+	test("(> (+ 1 1.0) (+ 0 2.0))", Object((1 + 1.0) > (0 + 2.0)));
+	test("(= 1.3 1.2)", Object(1.3 == 1.2));
+	test("(= (+ 1 1.0) (+ 0 2.0))", Object((1 + 1.0) == (0 + 2.0)));
+}
+
 /* Test define expression */
 void test_define() 
 {
@@ -85,6 +100,23 @@ void test_define()
 	test("(sq 5)", Object(25));
 	test("(sq 6.24)", Object(6.24 * 6.24));
 
+	test("(define (fact n) (if (< n 2) 1 (* n (fact (- n 1)))))", 
+		Object("define OK."));
+	test("(fact 0)", Object(1));
+	test("(fact 1)", Object(1));
+	test("(fact 2)", Object(2));
+	test("(fact 3)", Object(6));
+	test("(fact 4)", Object(24));
+	test("(fact 10)", Object(3628800));
+
+	test("(define (fib n) (if (< n 3) 1 (+ (fib (- n 1)) (fib (- n 2)))))", 
+		Object("define OK."));
+	test("(fib 1)", Object(1));
+	test("(fib 2)", Object(1));
+	test("(fib 3)", Object(2));
+	test("(fib 4)", Object(3));
+	test("(fib 10)", Object(55));
+	
 	// test("(define (f a b) (define c 5) (+ a b c))", Object("define OK."));
 	// test("(f 1 2)", Object(1 + 2 + 5));
 }
@@ -110,6 +142,7 @@ void run_test()
 {
 	test_io();
 	test_primitive_1();
+	test_primitive_2();
 	test_define();
 	test_lambda();
 
