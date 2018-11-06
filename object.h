@@ -57,6 +57,7 @@ public:
 	shared_ptr<List> get_list() const { return lst; }
 	
 private:
+	void inner(const Object& ob);
 	int						type;
 	int						integer;
 	double					real;

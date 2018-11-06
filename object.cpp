@@ -3,8 +3,9 @@
 #include "object.h"
 #include "eval.h"
 
-Object::Object(const Object& ob) : type(ob.get_type()) {
-	if (type == STRING)
+void Object::inner(const Object& ob)
+{
+	if (type == STRING || type == KEYWORD)
 		str = ob.get_string();
 	else if (type == INTEGER)
 		integer = ob.get_integer();
@@ -20,22 +21,13 @@ Object::Object(const Object& ob) : type(ob.get_type()) {
 		lst = ob.get_list();
 }
 
+Object::Object(const Object& ob) : type(ob.get_type()) {
+	inner(ob);
+}
+
 Object& Object::operator=(const Object& ob) {
 	type = ob.get_type();
-	if (type == STRING)
-		str = ob.get_string();
-	else if (type == INTEGER)
-		integer = ob.get_integer();
-	else if (type == REAL)
-		real = ob.get_real();
-	else if (type == BOOLEAN)
-		boolean = ob.get_boolean();
-	else if (type == PROCEDURE)
-		proc = ob.get_proc();
-	else if (type == CONS)
-		cons = ob.get_cons();
-	else if (type == LIST)
-		lst = ob.get_list();
+	inner(ob);
 	return *this;
 }
 
