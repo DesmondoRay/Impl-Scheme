@@ -49,9 +49,10 @@ Object apply_proc(Object &op, vector<Object>& obs);
 /* Handle with keyword */
 Object eval_keyword(const string& keyword, vector<string>& exp);
 
-
+/* Handle with "define" expression */
 Object eval_define(vector<string>& args);
 
+/* Handle with "define" expression */
 Object eval_lambda(vector<string>& exp);
 
 #endif

@@ -271,6 +271,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 	case (0): /* define expression */
 		return eval_define(exp);
 	case (1): /* if expression */
+		return eval_if(exp);
 	case (2): /* set expression */
 	case (3): /* lambda expression */
 		return eval_lambda(exp);
@@ -348,4 +349,12 @@ Object eval_lambda(vector<string>& exp)
 	/* Construct a compound procedure */
 	Procedure proc(parameters, body);
 	return Object(proc);
+}
+
+/* Handler with "if" expression, for example: 
+ * "(if (> a 2) (+ a 3) (- a 1))" --> predicate: "(> a 2)", 
+ * consequent: "(+ a 3)", alternative: "(- a 1)".
+ */
+Object eval_if(vector<string>& exp) {
+	;
 }
