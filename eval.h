@@ -29,7 +29,7 @@ void reset_evaluator();
 void error_handler(const string& s);
 
 /* Evaluator start. */
-void run_evaluator();
+void run_evaluator(istream &in);
 
 /* Evaluating a expression. */
 Object eval(vector<string>& split);

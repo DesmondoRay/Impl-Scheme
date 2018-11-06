@@ -35,7 +35,7 @@ void initialize_environment()
 void reset_evaluator()
 {
 	initialize_environment();
-	run_evaluator();
+	run_evaluator(cin);
 }
 
 /* Handler error */
@@ -48,7 +48,7 @@ void error_handler(const string& msg)
 	if (input != '\n')
 		while (getchar() != '\n') continue;
 	if (input == '\n' || input == 'y' || input == 'Y')
-		run_evaluator();
+		run_evaluator(cin);
 	else {
 		cout << "Bye! Press any key to quit." << endl;
 		input = getchar();
@@ -57,7 +57,7 @@ void error_handler(const string& msg)
 }
 
 /* Evaluator start. */
-void run_evaluator()
+void run_evaluator(istream& in)
 {
 	/* Keep only the global environment */
 	if (envs.size() > 1)
@@ -65,7 +65,7 @@ void run_evaluator()
 
 	while (true) {
 		prompt();
-		string input = get_input();
+		string input = get_input(in);
 		if (input.empty()) 
 			continue;
 

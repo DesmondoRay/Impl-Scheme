@@ -14,7 +14,7 @@ Object Primitive::quit(vector<Object>& obs)
 /* Return the sum of obs. */
 Object Primitive::add(vector<Object>& obs)
 {
-	int sum_i = 0;
+	int64_t sum_i = 0;
 	double sum_f = 0.0;
 	for (auto &ob : obs) {
 		if (ob.get_type() == INTEGER)
@@ -30,7 +30,10 @@ Object Primitive::add(vector<Object>& obs)
 
 	if (sum_f != 0.0)
 		return Object(sum_i + sum_f);	// Result's type is REAL
-	return Object(sum_i);				// Result's type is INTEGER
+	if (sum_i > INT_MAX || sum_i < INT_MIN)
+		cerr << "WARING: overflow -- *, " << sum_i
+		<< " --> " << static_cast<int>(sum_i) << endl;
+	return Object(static_cast<int>(sum_i));	// Result's type is INTEGER
 }
 
 /* Return the difference of obs */
@@ -54,14 +57,14 @@ Object Primitive::sub(vector<Object>& obs)
 	}
 
 	if (diff_f != 0.0)
-		return Object(diff_f - diff_i);	// Result's type is REAL
+		return Object(diff_f + diff_i);	// Result's type is REAL
 	return Object(diff_i);				// Result's type is INTEGER
 }
 
 /* Return the product of obs */
 Object Primitive::mul(vector<Object>& obs)
 {
-	int pro_i = 1;
+	int64_t pro_i = 1;
 	double pro_f = 1.0;
 	for (auto &ob : obs) {
 		if (ob.get_type() == INTEGER)
@@ -75,9 +78,12 @@ Object Primitive::mul(vector<Object>& obs)
 		}
 	}
 
-	if (pro_f != 0.0)
+	if (pro_f != 1.0)
 		return Object(pro_f * pro_i);	// Result's type is REAL
-	return Object(pro_i);				// Result's type is INTEGER
+	if (pro_i > INT_MAX || pro_i < INT_MIN)
+		cerr << "WARING: overflow -- *, " << pro_i 
+			 << " --> " << static_cast<int>(pro_i) << endl;
+	return Object(static_cast<int>(pro_i));	// Result's type is INTEGER
 }
 
 /* Return the quotient of obs */
@@ -92,12 +98,12 @@ Object Primitive::div(vector<Object>& obs)
 		Object &ob = obs[i];
 		if (ob.get_type() == INTEGER) {
 			if (ob.get_integer() == 0)
-				error_handler("ERROR(scheme): divide by 0");
+				error_handler("ERROR(scheme): division by zero");
 			quotient /= ob.get_integer();
 		}
 		else if (ob.get_type() == REAL) {
 			if (ob.get_real() == 0.0)
-				error_handler("ERROR(scheme): divide by 0.0");
+				error_handler("ERROR(scheme): floating-point divide by zero");
 			quotient /= ob.get_real();
 		}
 		else {

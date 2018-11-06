@@ -31,6 +31,28 @@ Object& Object::operator=(const Object& ob) {
 	return *this;
 }
 
+bool Object::operator==(const Object& ob) {
+	if (type != ob.get_type())
+		return false;
+	if (type == STRING || type == KEYWORD)
+		return str == ob.get_string();
+	else if (type == INTEGER)
+		return integer == ob.get_integer();
+	else if (type == REAL)
+		return abs(real - ob.get_real()) <= 1e-9;
+	else if (type == BOOLEAN)
+		return boolean == ob.get_boolean();
+	/*
+	else if (type == PROCEDURE)
+		return proc == ob.get_proc();
+	else if (type == CONS)
+		return cons == ob.get_cons();
+	else if (type == LIST)
+		return lst == ob.get_list();
+	*/
+	return true;
+}
+
 Object::Object(const string& s, int t) : type(t), str(s) {
 	if (t != KEYWORD) {
 		error_handler("ERROR(runtime): t must be KEYWORD "

@@ -10,10 +10,23 @@ using namespace std;
 #include "io_function.h"
 #include "eval.h"
 
-int main()
+//#define NDEBUG
+
+void run_test();
+
+int main(int argc, char **argv)
 {
 	initialize_environment();
-	run_evaluator();
 
+#ifndef NDEBUG
+	run_test();
+#else
+	if (argc == 1)
+		run_evaluator(std::cin);
+	else {
+		/* to do */
+	}
+#endif
+	
 	return 0;
 }

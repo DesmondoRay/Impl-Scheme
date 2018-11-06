@@ -42,6 +42,7 @@ public:
 
 	/* Operator= and destructor */
 	Object& operator=(const Object& ob);
+	bool operator==(const Object& ob);
 	~Object() {}
 
 	/* Others */

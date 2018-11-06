@@ -17,7 +17,7 @@ void prompt();
 void print_result(const Object& ob);
 
 /* Read user input. */
-string get_input(istream &in = cin);
+string get_input(istream &in);
 
 /* Split input string and store them in a vector<string>. */
 vector<string> split_input(string& input);
