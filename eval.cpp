@@ -189,6 +189,17 @@ Object eval(string& str)
 	}
 }
 
+/* Add new_env(local environment) to envs */
+static inline void expand_env(unordered_map<string, Object>& new_env) {
+	envs.push_back(new_env);
+}
+
+/* Remove a local environment from envs */
+static inline void remove_env(void) {
+	if (envs.size() > 1)
+		envs.pop_back();
+}
+
 /* Call proc with obs. */
 Object apply_proc(Object &op, vector<Object>& obs)
 {
@@ -199,13 +210,25 @@ Object apply_proc(Object &op, vector<Object>& obs)
 		error_handler("ERROR: unknown procedure -- apply_proc()");
 	}
 	/* Handler with procedures */
-	else {
-		shared_ptr<Procedure> proc = op.get_proc();
-		if (proc->get_type() == PRIMITIVE)
-			return proc->get_primitive()(obs);
-		/* Compound procedure -- lambda procedure */
-		else if (proc->get_type() == COMPOUND)
-			;/* to do */
+	shared_ptr<Procedure> proc = op.get_proc();
+	if (proc->get_type() == PRIMITIVE)
+		return proc->get_primitive()(obs);
+	/* Compound procedure -- lambda procedure */
+	else if (proc->get_type() == COMPOUND) {
+		/* Make a new environment to evaluate compound procedure */
+		unordered_map<string, Object> new_env;
+		vector<string> parameters(proc->get_parameters());
+
+		if (parameters.size() != obs.size())
+			error_handler("ERROR(scheme): "); /* !!!!!!!!!!!!!!!!!!!!! */
+
+		for (int i = 0; i < parameters.size(); i++) {
+			new_env[parameters[i]] = obs[i];
+		}
+		expand_env(new_env);
+		Object result = eval(proc->get_body());
+		remove_env();
+		return result;
 	}
 }
 
@@ -221,6 +244,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 	case (1): /* if */
 	case (2): /* set */
 	case (3): /* lambda */
+		return eval_lambda(exp);
 	case (4): /* begin */
 	case (5): /* let */
 	case (6): /* cond */
@@ -237,31 +261,31 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
  * "square": variable, "x": parameter, "(* x x)": body.
  * Convert to: (define square (lambda (x) (* x x)))
  */
-Object eval_define(vector<string>& args)
+Object eval_define(vector<string>& exp)
 {
-	if (args.empty())
-		error_handler(string("ERROR(runtime): illegal define expression"));
+	if (exp.empty())
+		error_handler(string("ERROR(scheme): illegal define expression"));
 #ifndef NDEBUG
 	cout << "DEBUG eval_define(): ";
-	for (auto &s : args)
+	for (auto &s : exp)
 		cout << s << " ";
 	cout << endl;
 #endif
 	Environment::iterator last_env = envs.end() - 1;
-	/* define a procedure, convert to "lambda" expression */
-	if (args[0] == "(") {
-		string variable = args[1];
-		vector<string> parameters;
-		int i = 2;
-		for (; i < args.size() && args[i] != ")"; i++)
-			parameters.push_back(args[i]);
-		vector<string> body(args.begin() + i, args.end());
-		(*last_env)[variable] = eval_lambda(parameters, body);
+	/* Define a procedure, convert to "lambda" expression */
+	if (exp[0] == "(") {
+		string variable = exp[1];
+		/* delete variable, {(square x), (* x x)} --> {(x), (* x x)} */
+		exp.erase(exp.begin() + 1); 
+		(*last_env)[variable] = eval_lambda(exp);
 	}
+	/* Define a common variable, such as (define a 3);
+	 * or define a procedure, such as (define square (lambda (x) (* x x))).
+	 */
 	else {
-		string variable = args[0];
+		string variable = exp[0];
 		(*last_env)[variable] = 
-			eval(vector<string>(args.begin() + 1, args.end()));
+			eval(vector<string>(exp.begin() + 1, exp.end()));
 	}
 #ifndef NDEBUG
 	cout << "DEBUG eval_define(): define OK " << endl;
@@ -269,7 +293,20 @@ Object eval_define(vector<string>& args)
 	return Object("define OK.");
 }
 
-Object eval_lambda(vector<string>& parameters, vector<string>& body)
+
+Object eval_lambda(vector<string>& exp)
 {
-	return Object();
+	if (exp.empty() || exp[0] != "(")
+		error_handler("ERROR(scheme): illegal lambda expression");
+
+	vector<string> parameters;
+	int i = 1;
+	for (; i < exp.size() && exp[i] != ")"; i++) {
+		parameters.push_back(exp[i]);
+	}
+
+	vector<string> body(exp.begin() + i + 1, exp.end());
+	Procedure proc(parameters, body);
+	Object p(proc);
+	return Object(proc);
 }

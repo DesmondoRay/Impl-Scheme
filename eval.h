@@ -49,6 +49,6 @@ Object eval_keyword(const string& keyword, vector<string>& exp);
 
 Object eval_define(vector<string>& args);
 
-Object eval_lambda(vector<string>& parameters, vector<string>& body);
+Object eval_lambda(vector<string>& exp);
 
 #endif
