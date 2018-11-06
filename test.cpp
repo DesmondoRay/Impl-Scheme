@@ -21,6 +21,24 @@ void printVec(vector<T>& v)
 	cout << endl;
 }
 
+void test_io()
+{
+	string code = "(cons 1 2)\n";
+	istringstream iss(code);
+	test_cnts++;
+	split_input(get_input(iss)) == vector<string>{"(", "cons", "1", "2", ")"} ?
+		test_pass++ : 1;
+
+	code = "((lambda(a)(+ a 3)) 3)\n";
+	iss.str(code);
+	test_cnts++;
+	split_input(get_input(iss)) ==
+		vector<string>{
+		"(", "(", "lambda", "(", "a", ")", "(",
+			"+", "a", "3", ")", ")", "3", ")"
+	} ? test_pass++ : 1;
+}
+
 void test(const string& code, Object& expect_result)
 {
 	string copy(code);
@@ -49,6 +67,8 @@ void test_primitive_1()
 /* Test define expression */
 void test_define() 
 {
+	/* INT_MAX: 2147483647 INT_MIN : -2147483648 */
+
 	test("(define n 5)", Object("define OK."));
 	test("(+ n 6)", Object(11));
 	test("(* 4.0 n)", Object(4.0 * 5));
@@ -73,20 +93,19 @@ void test_define()
 void test_lambda()
 {
 	test("((lambda (a) (+ a 3)) 3)", Object(6));
-	test("((lambda (a b) (* a b)) 3 4", Object(3 * 4));
+	test("((lambda (a b) (* a b)) 3 4)", Object(3 * 4));
 	test("((lambda (x y z) (* x y (+ x z))) 3 4 (+ 3 4))", 
-		Object(3 * 4 * (3 * (3 + 4)))); 
+		Object(3 * 4 * (3 + (3 + 4)))); 
 }
 
 void run_test()
 {
+	test_io();
 	test_primitive_1();
 	test_define();
-
+	test_lambda();
 
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
 	return;
 }
-
-// INT_MAX: 2147483647 INT_MIN : -2147483648

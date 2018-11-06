@@ -78,7 +78,7 @@ void run_evaluator(istream& in)
 /* Get subexpression */
 static vector<string> get_subexp(vector<string>& split)
 {
-	int cntParantheses = 0, i = 0;
+	int cntParantheses = 1, i = 1;
 	for (; i < split.size() && cntParantheses != 0; i++) {
 		split[i] == ")" ? cntParantheses-- : 1;
 		split[i] == "(" ? cntParantheses++ : 1;
@@ -102,19 +102,21 @@ Object eval(vector<string>& split)
 	else {
 		/* Evaluate operator */
 		Object op;
-		if (split[0] == "(")
+		if (split[0] == "(") {
 			/* "lambda" anonymous function, for example: 
 			 * "((lambda a (+ a 3)) 3)", "(lambda a (+ a 3)" is a procedure, 
 			 * and it's arguments is "3".
 			 */
-			op = eval(get_subexp(split));
+			vector<string> subexp = get_subexp(split);
+			op = eval(subexp);
+		}
 		else {
 			op = eval(split[0]);
 			split.erase(split.begin());
 		}
 
 #ifndef NDEBUG
-		cout << "DEBUG eval(): " << op.get_type() << endl;
+		cout << "DEBUG eval(): op.type: " << op.get_type() << endl;
 #endif
 		/* If op is a keyword, goto eval_keywords() */
 		if (op.get_type() == KEYWORD) {
@@ -334,6 +336,5 @@ Object eval_lambda(vector<string>& exp)
 
 	/* Construct a compound procedure */
 	Procedure proc(parameters, body);
-	Object p(proc);
 	return Object(proc);
 }
