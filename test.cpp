@@ -98,6 +98,14 @@ void test_lambda()
 		Object(3 * 4 * (3 + (3 + 4)))); 
 }
 
+void test_file()
+{
+	istringstream iss("(load \"F:/Git/Learning/impl_scheme/test/test1.scm\")\n");
+	string input = get_input(iss);
+	vector<string> split = split_input(input);
+	Object result = eval(split);
+}
+
 void run_test()
 {
 	test_io();
@@ -106,6 +114,8 @@ void run_test()
 	test_lambda();
 
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
+
+	// test_file();
 
 	return;
 }

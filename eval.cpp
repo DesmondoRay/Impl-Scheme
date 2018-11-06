@@ -29,6 +29,7 @@ void initialize_environment()
 	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
 	envs[0]["list"] = Object(Procedure(Primitive::make_list));
 	envs[0]["display"] = Object(Procedure(Primitive::display));
+	envs[0]["load"] = Object(Procedure(Primitive::load));
 }
 
 /* Reset environment, restart evaluator then */
@@ -56,23 +57,32 @@ void error_handler(const string& msg)
 	}
 }
 
+/* Print Scheme prompt for input. */
+static inline void prompt()
+{
+	cout << ">>> Eval input: " << endl;
+}
+
 /* Evaluator start. */
-void run_evaluator(istream& in)
+void run_evaluator(istream& in, int mode)
 {
 	/* Keep only the global environment */
 	if (envs.size() > 1)
 		envs.erase(envs.begin() + 1, envs.end()); 
 
-	while (true) {
-		prompt();
+	while (in.good()) {
+		if (mode == 0) 
+			prompt();
 		string input = get_input(in);
 		if (input.empty()) 
 			continue;
 
 		vector<string> split = split_input(input);
 		Object result = eval(split);
-		print_result(result);
+		print_result(result, mode);
 	}
+
+	return;
 }
 
 /* Get subexpression */
@@ -122,6 +132,7 @@ Object eval(vector<string>& split)
 		if (op.get_type() == KEYWORD) {
 			return eval_keyword(op.get_string(), split);
 		}
+
 		/* Else evaluate procedure and it's arguments */
 		vector<Object> args;
 		while (!split.empty()) {

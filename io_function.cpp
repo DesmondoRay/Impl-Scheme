@@ -3,16 +3,11 @@
 #include "io_function.h"
 #include "primitive_procedures.h"
 
-/* Print Scheme prompt for input. */
-void prompt()
-{
-	cout << ">>> Eval input: " << endl;
-}
-
 /* Print evaluation result. */
-void print_result(const Object& ob)
+void print_result(const Object& ob, int mode)
 {
-	cout << ">>> Eval value: " << endl;
+	if (mode == 0)
+		cout << ">>> Eval value: " << endl;
 	Primitive::display(vector<Object>{ob});
 	cout << endl;
 }

@@ -29,7 +29,10 @@ void reset_evaluator();
 void error_handler(const string& s);
 
 /* Evaluator start. */
-void run_evaluator(istream &in);
+/* mode == 0: print prompt, such as ">>> Eval input: ";
+ * mode == 1: don't print prompt, used to load file.
+ */
+void run_evaluator(istream &in, int mode = 0);
 
 /* Evaluating a expression. */
 Object eval(vector<string>& split);

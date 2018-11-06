@@ -185,3 +185,26 @@ Object Primitive::newline(vector<Object>& obs) {
 	cout << endl;
 	return Object();
 }
+
+/* Load code from input file and evaluate */
+Object Primitive::load(vector<Object>& obs)
+{
+	if (obs.empty())
+		error_handler(string("ERROR(scheme): need a file name -- load\n") +
+			"Usage: load \"path/name\" ");
+	if (obs[0].get_type() != STRING) {
+		error_handler(string("ERROR(scheme): unknown file type/name -- load\n")
+			+ "Usage: load \"path/name\" ");
+	}
+
+	string filename = obs[0].get_string();
+	ifstream ifile(filename.substr(1, filename.size() - 2), ifstream::in);
+	if (!ifile) {
+		error_handler(string("ERROR(scheme): can't open this file -- ") +
+			obs[0].get_string());
+	}
+
+	run_evaluator(ifile, 1);
+	error_handler("Loading done!");
+	return Object();
+}

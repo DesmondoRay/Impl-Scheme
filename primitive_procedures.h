@@ -3,7 +3,10 @@
 #ifndef PRIMITIVE_PROCEDURES_H_
 #define PRIMITIVE_PROCEDURES_H_
 
+#include <fstream>
 #include "object.h"
+
+#define NDEBUG
 
 namespace Primitive {
 	/* Quit */
@@ -34,6 +37,10 @@ namespace Primitive {
 
 	/* New line */
 	Object newline(vector<Object>& obs);
+
+	/* Load code from input file and evaluate */
+	/* Usage: (load "path/name.scm") */
+	Object load(vector<Object>& obs);
 };
 
 #endif

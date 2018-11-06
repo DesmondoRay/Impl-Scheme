@@ -10,11 +10,8 @@
 using namespace std;
 #include "object.h"
 
-/* Print Scheme prompt for input. */
-void prompt();
-
 /* Print evaluation result. */
-void print_result(const Object& ob);
+void print_result(const Object& ob, int mode = 0);
 
 /* Read user input. */
 string get_input(istream &in);
