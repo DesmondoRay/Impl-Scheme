@@ -137,12 +137,49 @@ Object Primitive::greater(vector<Object>& obs)
 }
 
 /* Return true if obs[0] == obs[1] == obs[2] == ... == obs[n] */
-Object Primitive::equal(vector<Object>& obs) {
+/* arguments must be numbers */
+Object Primitive::op_equal(vector<Object>& obs) {
+	if (obs.size() < 2) {
+		error_handler("ERROR(scheme): = takes at least two arguments");
+	}
+
 	bool result = true;
 	for (int i = 0; i < obs.size() - 1; i++) {
+		if (!obs[i].is_number() && !obs[i+1].is_number()) {
+			string error_msg("ERROR(scheme): passed a ");
+			error_msg += obs[i].get_type_str();
+			error_msg += " to =, it only takes integer and real.";
+			error_handler(error_msg);
+		}
 		result &= (obs[i] == obs[i + 1]);
 	}
 	return Object(result);
+}
+
+/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
+Object Primitive::equal(vector<Object>& obs) {
+	if (obs.size() != 2) {
+		error_handler("ERROR(scheme): eq? and eqaul? take two aurgument");
+	}
+
+	int type1 = obs[0].get_type(), type2 = obs[1].get_type();
+
+	if (type1 != type2)
+		return Object(false);
+	else if (type1 == INTEGER)
+		return Object(obs[0].get_integer() == obs[1].get_integer());
+	else if (type1 == REAL)
+		return Object(obs[0].get_real() == obs[1].get_real());
+	else if (type1 == STRING || type1 == KEYWORD)
+		return Object(obs[0].get_string() == obs[1].get_string());
+	else if (type1 == BOOLEAN)
+		return Object(obs[0].get_boolean() == obs[1].get_boolean());
+	else if (type1 == PROCEDURE)
+		return Object(obs[0].get_proc() == obs[1].get_proc());
+	else if (type1 == CONS)
+		return Object(/* to do */);
+	else if (type1 == LIST)
+		return Object(/* to do */);
 }
 
 /* Return the pair of obs as an Object */

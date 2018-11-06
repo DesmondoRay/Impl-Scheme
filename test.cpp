@@ -65,18 +65,42 @@ void test_primitive_1()
 }
 
 /* Test <, >, =/eq?/equal? */
-void test_primitive_2() 
+void test_primitive_2()
 {
 	test("(< 1 2)", Object(1 < 2));
 	//test("(< -1 -2)", Object(-1 < -2));
 	test("(< 1.2 3.2)", Object(1.2 < 3.2));
 	test("(< 1 1.0)", Object(1 < 1.0));
+	test("(< 1 2 3 4)", Object(true));
+	test("(< 1.0 2 2.1 100)", Object(true));
+	test("(< 1.0 1 2.1 100)", Object(false));
+
 	test("(> 1 2)", Object(1 > 2));
 	//test("(> -1 -2)", Object(-1 > -2));
 	test("(> 1 1.0)", Object(1 > 1.0));
 	test("(> (+ 1 1.0) (+ 0 2.0))", Object((1 + 1.0) > (0 + 2.0)));
+	test("(> 6 4 3 1)", Object(true));
+	test("(> 5 4.9999 4.3 2)", Object(true));
+	test("(> 7 5 3.333 3.334)", Object(false));
+
 	test("(= 1.3 1.2)", Object(1.3 == 1.2));
 	test("(= (+ 1 1.0) (+ 0 2.0))", Object((1 + 1.0) == (0 + 2.0)));
+	test("(= 1 1.0 1 1.0)", Object(true));
+	test("(= 2 2.0 2 2.0 2.000001)", Object(false));
+
+	test("(eq? 1 1.0)", Object(false));
+	test("(eq? 1 1)", Object(1 == 1));
+	test("(equal? 1.0 1.0)", Object(1.0 == 1.0));
+	test("(equal? \"abc\" \"abc\")", Object(true));
+	test("(equal? \"abc\" \"123\")", Object(false));
+	test("(eq? #t #t)", Object(true));
+	test("(eq? #t #f)", Object(false));
+	test("(eq? + +)", Object(true));
+	test("(eq? + -)", Object(false));
+	/* Compare two compound procedure */
+	/* Note: the following tests must run after test_define(); */
+	test("(eq? fact fact)", Object(true)); 
+	test("(eq? fact square)", Object(false));
 }
 
 /* Test define expression */
@@ -121,6 +145,7 @@ void test_define()
 	// test("(f 1 2)", Object(1 + 2 + 5));
 }
 
+
 /* Test lambda expression */
 void test_lambda()
 {
@@ -142,8 +167,8 @@ void run_test()
 {
 	test_io();
 	test_primitive_1();
-	test_primitive_2();
 	test_define();
+	test_primitive_2();
 	test_lambda();
 
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;

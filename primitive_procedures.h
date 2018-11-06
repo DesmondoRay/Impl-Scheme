@@ -30,6 +30,10 @@ namespace Primitive {
 	/* Return true if obs[0] > obs[1] > obs[2] > ... > obs[n] */
 	Object greater(vector<Object>& obs);
 	/* Return true if obs[0] == obs[1] == obs[2] == ... == obs[n] */
+	/* arguments must be numbers */
+	Object op_equal(vector<Object>& obs);
+	/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
+	/* arguments could be all types */
 	Object equal(vector<Object>& obs);
 
 	/* Return the pair of obs as an Object */

@@ -26,9 +26,9 @@ void initialize_environment()
 	envs[0]["/"] = Object(Procedure(Primitive::div));
 	envs[0]["<"] = Object(Procedure(Primitive::less));
 	envs[0][">"] = Object(Procedure(Primitive::greater));
-	/* Note: = can take multiple arguments; */
-	/* eq? and equal? only takes two arguments, I'm not going to re-implement it. */
-	envs[0]["="] = Object(Procedure(Primitive::equal));
+	/* Note: = can take multiple arguments, "(= 1.0 1)" --> true */
+	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
+	envs[0]["="] = Object(Procedure(Primitive::op_equal));
 	envs[0]["eq?"] = Object(Procedure(Primitive::equal));
 	envs[0]["equal?"] = Object(Procedure(Primitive::equal));
 	envs[0]["quit"] = Object(Procedure(Primitive::quit));
