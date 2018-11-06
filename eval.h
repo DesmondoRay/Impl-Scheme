@@ -11,10 +11,16 @@ using namespace std;
 #include "io_function.h"
 #include "primitive_procedures.h"
 
+/* Keywords of Scheme */
 static vector<string> keywords{
-	"define", "if", "set", "lambda", "begin", "let", "cond", "else" };
+	"define", "if", "set", "lambda", 
+	"begin", "let", "cond", "else" 
+};
 
-using Environment = vector<unordered_map<string, Object>>;
+ using Environment = vector<unordered_map<string, Object>>;
+
+ /* Reset the global environment. */
+ void initialize_environment();
 
 /* Reset evaluator, reset environment */
 void reset_evaluator();
@@ -35,9 +41,14 @@ void delete_ends_parentheses(vector<string>& split);
 Object eval(string& str);
 
 /* Call proc with obs. */
-Object apply_proc(Object &proc, vector<Object>& obs);
+Object apply_proc(Object &op, vector<Object>& obs);
 
-/* Reset the global environment. */
-void initialize_environment();
+/* Handle with keyword */
+Object eval_keyword(const string& keyword, vector<string>& exp);
+
+
+Object eval_define(vector<string>& args);
+
+Object eval_lambda(vector<string>& parameters, vector<string>& body);
 
 #endif

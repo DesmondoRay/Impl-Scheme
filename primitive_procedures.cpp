@@ -127,7 +127,7 @@ Object Primitive::display(vector<Object>& obs)
 {
 	for (auto &ob : obs) {
 		int type = ob.get_type();
-#ifndef NDEBUG
+#if 0
 		cout << "DEBUG display(): type of ob -- "<< ob.get_type_str() << endl;
 #endif
 		shared_ptr<Cons> spc; /* Used to display Cons */
@@ -139,7 +139,7 @@ Object Primitive::display(vector<Object>& obs)
 			cout << ob.get_real() << " ";
 			break;
 		case BOOLEAN:
-			cout << ob.get_boolean() << " ";
+			cout << (ob.get_boolean() ? "true" : "false") << " ";
 			break;
 		case STRING:
 			cout << ob.get_string() << " ";
@@ -159,13 +159,13 @@ Object Primitive::display(vector<Object>& obs)
 			cout << ". ";
 			Primitive::display(vector<Object>{spc->cdr()});
 			// Backspace, example: (cons 1 2) print (1 . 2), instead of (1 . 2 )
-			cout << "\b)";
+			cout << "\b) ";
 			break;
 		case LIST:
 			cout << "(";
 			for (auto &ob : ob.get_list()->lst)
 				Primitive::display(vector<Object>{ob});
-			cout << "\b)";	// backspace
+			cout << "\b) ";	// backspace
 			break;
 		default: /* UNASSIGNED */
 			cerr << "null";

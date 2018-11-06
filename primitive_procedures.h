@@ -21,7 +21,7 @@ namespace Primitive {
 	/* Note: always return real(double) */
 	Object div(vector<Object>& obs);
 
-	
+
 	/* Return the pair of obs as an Object */
 	/* Note: obs.size() must be 2 */
 	Object make_cons(vector<Object>& obs);

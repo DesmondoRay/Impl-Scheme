@@ -30,6 +30,7 @@ public:
 	explicit Object(double val) :		type(REAL),		real(val) {}
 	explicit Object(bool val) :			type(BOOLEAN),	boolean(val) {}
 	explicit Object(const string& s) :	type(STRING),	str(s) {}
+	explicit Object(const char *s) :	type(STRING),	str(s) {}
 	explicit Object(const Procedure& p) :
 		type(PROCEDURE), proc(make_shared<Procedure>(p)) {}
 	explicit Object(const Cons& c) : 

@@ -87,12 +87,17 @@ Object eval(vector<string>& split)
 		return eval(split[0]);
 	}
 	else {
-		/* Eval operator -- proc */
-		Object proc = eval(split[0]);
+		/* Eval operator */
+		Object op = eval(split[0]);
 #ifndef NDEBUG
-		cout << "DEBUG eval(): " << proc.get_type() << endl;
+		cout << "DEBUG eval(): " << op.get_type() << endl;
 #endif
-		/* Eval arguments -- args */
+		/* Eval keywords */
+		if (op.get_type() == KEYWORD) {
+			return eval_keyword(op.get_string(), 
+				vector<string>(split.begin() + 1, split.end()));
+		}
+		/* Eval procedure and it's arguments */
 		vector<Object> args;
 		for (int i = 1; i < split.size(); i++) {
 			/* Eval a subexpression, example: */
@@ -111,14 +116,14 @@ Object eval(vector<string>& split)
 				}
 				vector<string> sub_exp(split.begin() + i, it + 1);
 				args.push_back(eval(sub_exp));
-				i = it - split.begin() + 1;
+				i = it - split.begin();
 			}
 
 			/* Eval a single operand -- self-evaluating */
 			else 
 				args.push_back(eval(split[i]));
 		}
-		return apply_proc(proc, args);
+		return apply_proc(op, args);
 	}
 }
 
@@ -138,8 +143,12 @@ Object eval(string& str)
 {
 	/* NUMBER or REAL */
 	if (isdigit(str[0])) {
-		if (str.find('.') != str.size())
+		if (str.find('.') != string::npos) {
+#ifndef NDEBUG
+			cout << "DEBUG eval() NUMBER or REAL: " << str.find('.') << endl;
+#endif
 			return Object(stod(str));
+		}
 		else
 			return Object(stoi(str));
 	}
@@ -164,12 +173,6 @@ Object eval(string& str)
 #ifndef NDEBUG
 			cout << "DEBUG eval(): " << str << " " << envs.size() << endl;
 #endif
-#if 0
-			for (auto &e : envs) {
-				if (e.find(str) != e.end())
-					return e[str];
-			}
-#endif
 #if 1
 			for (auto it = envs.rbegin(); it != envs.rend(); ++it) {
 				if (it->find(str) != it->end())
@@ -187,18 +190,86 @@ Object eval(string& str)
 }
 
 /* Call proc with obs. */
-Object apply_proc(Object &proc, vector<Object>& obs)
+Object apply_proc(Object &op, vector<Object>& obs)
 {
-	if (proc.get_type() != PROCEDURE) {
+	if (op.get_type() != PROCEDURE) {
 #ifndef NDEBUG
 		cout << "DEBUG: Object apply_proc(Object &proc, vector<Object>& obs)\n";
 #endif
 		error_handler("ERROR: unknown procedure -- apply_proc()");
 	}
-	shared_ptr<Procedure> op = proc.get_proc();
-	if (op->get_type() == PRIMITIVE)
-		return op->get_primitive()(obs);
-	/* Compound procedure -- lambda procedure */
-	else if (op->get_type() == COMPOUND)
-		;/* to do */
+	/* Handler with procedures */
+	else {
+		shared_ptr<Procedure> proc = op.get_proc();
+		if (proc->get_type() == PRIMITIVE)
+			return proc->get_primitive()(obs);
+		/* Compound procedure -- lambda procedure */
+		else if (proc->get_type() == COMPOUND)
+			;/* to do */
+	}
+}
+
+/* Handle with keyword */
+Object eval_keyword(const string& keyword, vector<string>& exp)
+{
+	/* Handler with keywords */
+	auto it = find(keywords.begin(), keywords.end(), keyword);
+	int keywords_index = it - keywords.begin();
+	switch (keywords_index) {
+	case (0): /* define */
+		return eval_define(exp);
+	case (1): /* if */
+	case (2): /* set */
+	case (3): /* lambda */
+	case (4): /* begin */
+	case (5): /* let */
+	case (6): /* cond */
+	case (7): /* else */
+	default:
+		error_handler(string("ERROR(runtime): unknown keyword -- ") + keyword);
+	}
+	// return Object(); /* Return null */
+}
+
+/* Handle with "define" expression, if define a compound procedure ,
+ * convert to "lambda" expression, for example:
+ * "(define (square x) (* x x))" --> args: {"(square x)", "(* x x)"},
+ * "square": variable, "x": parameter, "(* x x)": body.
+ * Convert to: (define square (lambda (x) (* x x)))
+ */
+Object eval_define(vector<string>& args)
+{
+	if (args.empty())
+		error_handler(string("ERROR(runtime): illegal define expression"));
+#ifndef NDEBUG
+	cout << "DEBUG eval_define(): ";
+	for (auto &s : args)
+		cout << s << " ";
+	cout << endl;
+#endif
+	Environment::iterator last_env = envs.end() - 1;
+	/* define a procedure, convert to "lambda" expression */
+	if (args[0] == "(") {
+		string variable = args[1];
+		vector<string> parameters;
+		int i = 2;
+		for (; i < args.size() && args[i] != ")"; i++)
+			parameters.push_back(args[i]);
+		vector<string> body(args.begin() + i, args.end());
+		(*last_env)[variable] = eval_lambda(parameters, body);
+	}
+	else {
+		string variable = args[0];
+		(*last_env)[variable] = 
+			eval(vector<string>(args.begin() + 1, args.end()));
+	}
+#ifndef NDEBUG
+	cout << "DEBUG eval_define(): define OK " << endl;
+#endif
+	return Object("define OK.");
+}
+
+Object eval_lambda(vector<string>& parameters, vector<string>& body)
+{
+	return Object();
 }
