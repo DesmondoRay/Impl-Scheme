@@ -42,8 +42,8 @@ Object eval(vector<string>& split, Environment& env)
 			if (split[i] == "(") {
 				auto it = find(split.begin() + i, split.end(), ")");
 				if (it == split.end()) {
-					cerr << "ERROR: illegal expression" << endl;
-					exit(0); /* !!!!!!!!!!!!!!!!!!!!!!!!!! */
+					cerr << "ERROR: illegal expression -- eval()" << endl;
+					run_evaluator(env);
 				}
 				vector<string> sub_exp(split.begin() + i, it + 1);
 				args.push_back(eval(sub_exp, env));
@@ -95,8 +95,8 @@ Object eval(string& str, Environment& env)
 		else if (env.find(str) != env.end())
 			return env[str];
 		else {
-			cerr << "ERROR: unknown symbol -- " << str << endl;
-			Primitive::quit(vector<Object>{});
+			cerr << "ERROR: unknown symbol: " << str << " -- eval()" << endl;
+			run_evaluator(env);
 		}
 	}
 }
@@ -105,8 +105,8 @@ Object eval(string& str, Environment& env)
 Object apply_proc(Object &proc, vector<Object>& obs, Environment& env)
 {
 	if (proc.get_type() != PROCEDURE) {
-		cerr << "ERROR: -- apply_proc()" << endl;
-		exit(0);
+		cerr << "ERROR: unknown procedure -- apply_proc()" << endl;
+		run_evaluator(env);
 	}
 	shared_ptr<Procedure> op = proc.get_proc();
 	if (op->get_type() == PRIMITIVE)

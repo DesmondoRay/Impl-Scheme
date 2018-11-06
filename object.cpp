@@ -1,6 +1,7 @@
 /* Implement of class Object */
 
 #include "object.h"
+#include "eval.h"
 
 Object::Object(const Object& ob) : type(ob.get_type()) {
 	if (type == STRING)
@@ -38,10 +39,18 @@ Object& Object::operator=(const Object& ob) {
 	return *this;
 }
 
+Object::Object(const string& s, int t) : type(t), str(s) {
+	if (t != KEYWORD)
+		cerr << "ERROR: t must be KEYWORD -- "
+		<< "Object(const string& s, int t)" << endl;
+}
+
 Cons::Cons(const vector<Object> &obs) {
-	if (obs.size() != 2)
+	if (obs.size() != 2) {
 		cerr << "error: Cons(const vector<Object>), vector.size() must be 2"
-		<< endl;
+			<< endl;
+
+	}
 	else
-		pir = obs;
+		pir = make_pair(obs[0], obs[1]);
 }

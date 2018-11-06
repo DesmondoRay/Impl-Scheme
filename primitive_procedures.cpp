@@ -31,7 +31,8 @@ Object Primitive::add(vector<Object>& obs)
 }
 
 /* Return the pair of obs as an Object */
-Object Primitive::make_cons(vector<Object>& obs) {
+Object Primitive::make_cons(vector<Object>& obs) 
+{
 	return Object(Cons(obs));
 }
 

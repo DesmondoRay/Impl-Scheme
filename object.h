@@ -36,11 +36,8 @@ public:
 		type(CONS), cons(make_shared<Cons>(c)) {}
 	explicit Object(const List& l) : 
 		type(LIST), lst(make_shared<List>(l)) {}
-	Object(const string& s, int t) : type(t), str(s) { 
-		if (t != KEYWORD)
-			cerr << "ERROR: t must be KEYWORD -- " 
-				 << "Object(const string& s, int t)" << endl;
-	}
+	Object(const string& s, int t);
+
 
 	/* Operator= and destructor */
 	Object& operator=(const Object& ob);
@@ -94,14 +91,14 @@ private:
 class Cons {
 public:
 	Cons() = delete;
-	Cons(const Object& a, const Object& b) : pir(vector<Object>{ a, b }) {}
+	Cons(const Object& a, const Object& b) : pir(make_pair(a, b)) {}
 	explicit Cons(const vector<Object> &obs);
 	~Cons() {}
 
-	Object car() const { return pir[0]; }
-	Object cdr() const { return pir[1]; }
+	Object car() const { return pir.first; }
+	Object cdr() const { return pir.second; }
 private:
-	vector<Object> pir;
+	pair<Object, Object> pir;
 };
 
 /* Scheme's list */
@@ -121,6 +118,5 @@ public:
 
 	list<Object> lst;
 };
-
 
 #endif
