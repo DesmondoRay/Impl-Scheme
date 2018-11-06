@@ -47,24 +47,24 @@ bool Object::operator_inner(const Object& ob, const string& op) {
 }
 
 bool Object::operator==(const Object& ob) {
-	if (is_number() && ob.is_number())
-		return operator_inner(ob, "=");
+	int type2 = ob.get_type();
 
-	if (type != ob.get_type())
+	if (type != type2)
 		return false;
-	if (type == STRING || type == KEYWORD)
+	else if (type == INTEGER)
+		return integer == ob.get_integer();
+	else if (type == REAL)
+		return abs(real - ob.get_real()) <= 1e-9;
+	else if (type == STRING || type == KEYWORD)
 		return str == ob.get_string();
 	else if (type == BOOLEAN)
 		return boolean == ob.get_boolean();
-	/*
 	else if (type == PROCEDURE)
 		return proc == ob.get_proc();
 	else if (type == CONS)
-		return cons == ob.get_cons();
+		return true; /* to do */
 	else if (type == LIST)
-		return lst == ob.get_list();
-	*/
-	return true;
+		return true; /* to do */
 }
 
 bool Object::operator<(const Object& ob) {

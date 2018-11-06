@@ -59,12 +59,13 @@ public:
 	shared_ptr<Procedure> get_proc() const { return proc; }
 	shared_ptr<Cons> get_cons() const { return cons; };
 	shared_ptr<List> get_list() const { return lst; }
+
+	/* Used to operator<, operator> and operator= */
+	bool operator_inner(const Object& ob, const string& op);
 	
 private:
 	/* Used to copy constructor and copy control*/
 	void copy_inner(const Object& ob); 
-	/* Used to operator< and operator> */
-	bool operator_inner(const Object& ob, const string& op);
 	int						type;
 	bool					boolean;
 	int						integer;
