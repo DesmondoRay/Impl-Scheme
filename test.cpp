@@ -56,19 +56,27 @@ void test(const string& code, Object& expect_result)
 void test_primitive_1() 
 {
 	test("(+ 3 4)", Object(3 + 4));
+	test("(+ -3 4)", Object(-3 + 4));
 	test("(+ 2.1 4 5.8)", Object(2.1 + 4 + 5.8));
 	test("(- 1 5)", Object(1 - 5));
 	test("(- 5.23 2)", Object(5.23 - 2));
+	test("(- 5.23 -2)", Object(5.23 - (-2)));
 	test("(+ 2147483647 1)", Object(INT_MAX + 1));
+	test("(+ -2147483648 -1)", Object(INT_MIN - 1));
 	test("(* 2147483647 34)", Object(INT_MAX * 34));
+	test("(* 23 -3)", Object(23 * (-3)));
 	test("(/ 2 3)", Object(2.0 / 3));
+	test("(/ 20 -3)", Object(20.0 / (-3)));
+	test("(remainder 20 3)", Object(20 % 3));
+	test("(remainder 4 7)", Object(4 % 7));
+	test("(remainder -14 7)", Object(-14 % 7));
 }
 
 /* Test <, >, =/eq?/equal? */
 void test_primitive_2()
 {
 	test("(< 1 2)", Object(1 < 2));
-	//test("(< -1 -2)", Object(-1 < -2));
+	test("(< -1 -2)", Object(-1 < -2));
 	test("(< 1.2 3.2)", Object(1.2 < 3.2));
 	test("(< 1 1.0)", Object(1 < 1.0));
 	test("(< 1 2 3 4)", Object(true));
@@ -76,7 +84,7 @@ void test_primitive_2()
 	test("(< 1.0 1 2.1 100)", Object(false));
 
 	test("(> 1 2)", Object(1 > 2));
-	//test("(> -1 -2)", Object(-1 > -2));
+	test("(> -1 -2)", Object(-1 > -2));
 	test("(> 1 1.0)", Object(1 > 1.0));
 	test("(> (+ 1 1.0) (+ 0 2.0))", Object((1 + 1.0) > (0 + 2.0)));
 	test("(> 6 4 3 1)", Object(true));

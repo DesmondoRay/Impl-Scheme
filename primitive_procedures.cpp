@@ -116,6 +116,24 @@ Object Primitive::div(vector<Object>& obs)
 	return Object(quotient);	// Result's type is REAL
 }
 
+/* Return remainder */
+Object Primitive::remainder(vector<Object>& obs) 
+{
+	if (obs.size() < 2) {
+		error_handler("ERROR(scheme): remainder takes at least two arguments");
+	}
+	if (obs[0].get_type() != INTEGER || obs[1].get_type() != INTEGER) {
+		string wrong_type = (obs[0].get_type() == INTEGER ?
+			obs[1].get_type_str() : obs[0].get_type_str());
+		string error_msg("ERROR(scheme): passed a ");
+		error_msg += wrong_type;
+		error_msg += " to remainder, it only takes integer.";
+		error_handler(error_msg);
+	}
+
+	return Object(obs[0].get_integer() % obs[1].get_integer());
+}
+
 /* Return the true if obs[0] < obs[1] < obs[2] < ... < obs[n] */
 Object Primitive::less(vector<Object>& obs)
 {

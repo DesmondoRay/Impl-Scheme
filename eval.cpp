@@ -24,6 +24,7 @@ void initialize_environment()
 	envs[0]["-"] = Object(Procedure(Primitive::sub));
 	envs[0]["*"] = Object(Procedure(Primitive::mul));
 	envs[0]["/"] = Object(Procedure(Primitive::div));
+	envs[0]["remainder"] = Object(Procedure(Primitive::remainder));
 	envs[0]["<"] = Object(Procedure(Primitive::less));
 	envs[0][">"] = Object(Procedure(Primitive::greater));
 	/* Note: = can take multiple arguments, "(= 1.0 1)" --> true */
@@ -173,7 +174,8 @@ void delete_ends_parentheses(vector<string>& split)
 Object eval(string& str)
 {
 	/* NUMBER or REAL */
-	if (isdigit(str[0])) {
+	if (isdigit(str[0]) || (str.size() > 1 && str[0] == '-' && isdigit(str[1]))) 
+	{
 		if (str.find('.') != string::npos) {
 #ifndef NDEBUG
 			cout << "DEBUG eval() NUMBER or REAL: " << str.find('.') << endl;
