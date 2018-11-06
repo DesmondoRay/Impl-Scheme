@@ -45,6 +45,8 @@ public:
 
 	/* Others */
 	int get_type() const { return type; }
+	/* Return name of type */
+	string get_type_str() const;
 	int get_integer() const { return integer; }
 	double get_real() const { return real; }
 	bool get_boolean() const { return boolean; }

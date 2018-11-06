@@ -1,15 +1,17 @@
 /* Implement of primitive procedures of Scheme */
 
 #include "primitive_procedures.h"
+#include "eval.h"
 
-/* Quit */ /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+/* Quit */
 Object Primitive::quit(vector<Object>& obs)
 {
+	cout << "Bye! Press any key to quit." << endl;
+	char input = getchar();
 	exit(0);
-	return Object();
 }
 
-/* Return the sum of obs as an Object. */
+/* Return the sum of obs. */
 Object Primitive::add(vector<Object>& obs)
 {
 	int sum_i = 0;
@@ -20,14 +22,92 @@ Object Primitive::add(vector<Object>& obs)
 		else if (ob.get_type() == REAL)
 			sum_f += ob.get_real();
 		else {
-			cerr << "ERROR: can't apply '+' to this type!" << endl;/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-			Primitive::quit(vector<Object>{});
+			string error_msg("ERROR(scheme): can't apply '+' to the type -- ");
+			error_msg += ob.get_type_str();
+			error_handler(error_msg);
 		}
 	}
 
 	if (sum_f != 0.0)
 		return Object(sum_i + sum_f);	// Result's type is REAL
 	return Object(sum_i);				// Result's type is INTEGER
+}
+
+/* Return the difference of obs */
+Object Primitive::sub(vector<Object>& obs)
+{
+	if (obs.empty()) return Object(0);
+
+	int diff_i = (obs[0].get_type() == INTEGER ? obs[0].get_integer() : 0);
+	double diff_f = (obs[0].get_type() == REAL ? obs[0].get_real() : 0.0);
+	for (int i = 1; i < obs.size(); i++) {
+		Object &ob = obs[i];
+		if (ob.get_type() == INTEGER)
+			diff_i -= ob.get_integer();
+		else if (ob.get_type() == REAL)
+			diff_f -= ob.get_real();
+		else {
+			string error_msg("ERROR(scheme): can't apply '-' to the type -- ");
+			error_msg += ob.get_type_str();
+			error_handler(error_msg);
+		}
+	}
+
+	if (diff_f != 0.0)
+		return Object(diff_f - diff_i);	// Result's type is REAL
+	return Object(diff_i);				// Result's type is INTEGER
+}
+
+/* Return the product of obs */
+Object Primitive::mul(vector<Object>& obs)
+{
+	int pro_i = 1;
+	double pro_f = 1.0;
+	for (auto &ob : obs) {
+		if (ob.get_type() == INTEGER)
+			pro_i *= ob.get_integer();
+		else if (ob.get_type() == REAL)
+			pro_f *= ob.get_real();
+		else {
+			string error_msg("ERROR(scheme): can't apply '*' to the type -- ");
+			error_msg += ob.get_type_str();
+			error_handler(error_msg);
+		}
+	}
+
+	if (pro_f != 0.0)
+		return Object(pro_f * pro_i);	// Result's type is REAL
+	return Object(pro_i);				// Result's type is INTEGER
+}
+
+/* Return the quotient of obs */
+Object Primitive::div(vector<Object>& obs)
+{
+	if (obs.empty()) return Object(0);
+
+	double quotient = (obs[0].get_type() == REAL ? obs[0].get_real() :
+		static_cast<double>(obs[0].get_integer()));
+
+	for (int i = 1; i < obs.size(); i++) {
+		Object &ob = obs[i];
+		if (ob.get_type() == INTEGER) {
+			if (ob.get_integer() == 0)
+				error_handler("ERROR(scheme): divide by 0");
+			quotient /= ob.get_integer();
+		}
+		else if (ob.get_type() == REAL) {
+			if (ob.get_real() == 0.0)
+				error_handler("ERROR(scheme): divide by 0.0");
+			quotient /= ob.get_real();
+		}
+		else {
+			string error_msg("ERROR(scheme): can't apply '/' to the type -- ");
+			error_msg += ob.get_type_str();
+			error_handler(error_msg);
+		}
+	}
+
+	return Object(quotient);	// Result's type is REAL
 }
 
 /* Return the pair of obs as an Object */
@@ -47,6 +127,9 @@ Object Primitive::display(vector<Object>& obs)
 {
 	for (auto &ob : obs) {
 		int type = ob.get_type();
+#ifndef NDEBUG
+		cout << "DEBUG display(): type of ob -- "<< ob.get_type_str() << endl;
+#endif
 		shared_ptr<Cons> spc; /* Used to display Cons */
 		switch (type) {
 		case INTEGER:
@@ -62,14 +145,12 @@ Object Primitive::display(vector<Object>& obs)
 			cout << ob.get_string() << " ";
 			break;
 		case PROCEDURE:
-			if (ob.get_type() == PRIMITIVE)
+			if (ob.get_proc()->get_type() == PRIMITIVE)
 				cout << "<primitive procedure>" << endl; /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-			else if (ob.get_type() == COMPOUND)
+			else if (ob.get_proc()->get_type() == COMPOUND)
 				cout << "<compound procedure>" << endl;
-			else {
-				cerr << "ERROR: unknown procedure!" << endl;
-				Primitive::quit(vector<Object>{});
-			}
+			else
+				error_handler("ERROR(scheme): unknown procedure -- display");
 			break;
 		case CONS:
 			spc = ob.get_cons();

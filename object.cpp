@@ -46,6 +46,15 @@ Object::Object(const string& s, int t) : type(t), str(s) {
 	}
 }
 
+static vector<string> type_str{
+	"unassigned", "integer", "real", "boolean",
+	"string", "procedure", "cons", "list", "keyword"
+};
+
+string Object::get_type_str() const {
+	return type_str[type];
+}
+
 Cons::Cons(const vector<Object> &obs) {
 	if (obs.size() != 2)
 		error_handler("ERROR(scheme): number of operands number must be 2 "

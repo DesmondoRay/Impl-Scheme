@@ -7,12 +7,20 @@
 
 namespace Primitive {
 	/* Quit */
-	/* Note: return an empty Object, obs is empty too */
+	/* Note: obs could/should be empty */
 	Object quit(vector<Object>& obs);
 
-	/* Return the sum of obs as an Object. */
-	/* Note: Result's type could be INTEGER or REAL */
+/* Primitive operation, note: result's type could be INTEGER or REAL */
+	/* Return the sum of obs */
 	Object add(vector<Object>& obs);
+	/* Return the difference of obs */
+	Object sub(vector<Object>& obs);
+	/* Return the product of obs */
+	Object mul(vector<Object>& obs);
+	/* Return the quotient of obs */
+	/* Note: always return real(double) */
+	Object div(vector<Object>& obs);
+
 	
 	/* Return the pair of obs as an Object */
 	/* Note: obs.size() must be 2 */

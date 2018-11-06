@@ -14,6 +14,48 @@
 */
 static Environment envs;
 
+/* Initialize/reset the global environment. */
+void initialize_environment()
+{
+	envs.clear();
+	envs.push_back(unordered_map<string, Object>());
+
+	envs[0]["+"] = Object(Procedure(Primitive::add));
+	envs[0]["-"] = Object(Procedure(Primitive::sub));
+	envs[0]["*"] = Object(Procedure(Primitive::mul));
+	envs[0]["/"] = Object(Procedure(Primitive::div));
+	envs[0]["quit"] = Object(Procedure(Primitive::quit));
+	envs[0]["exit"] = Object(Procedure(Primitive::quit));
+	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
+	envs[0]["list"] = Object(Procedure(Primitive::make_list));
+	envs[0]["display"] = Object(Procedure(Primitive::display));
+}
+
+/* Reset environment, restart evaluator then */
+void reset_evaluator()
+{
+	initialize_environment();
+	run_evaluator();
+}
+
+/* Handler error */
+void error_handler(const string& msg)
+{
+	cerr << msg << endl;
+	cout << "Input [Enter] or [Y/y] to continue and input others to quit: ";
+	char input = getchar();
+	/* Delete extra characters */
+	if (input != '\n')
+		while (getchar() != '\n') continue;
+	if (input == '\n' || input == 'y' || input == 'Y')
+		run_evaluator();
+	else {
+		cout << "Bye! Press any key to quit." << endl;
+		input = getchar();
+		exit(0);
+	}
+}
+
 /* Evaluator start. */
 void run_evaluator()
 {
@@ -33,36 +75,17 @@ void run_evaluator()
 	}
 }
 
-/* Reset environment, restart evaluator then */
-void reset_evaluator()
-{
-	initialize_environment();
-	run_evaluator();
-}
-
-/* Handler error */
-void error_handler(const string& s)
-{
-	cerr << s << endl;
-	cout << "Input [Enter] or [Y/y] to continue and input others to quit: ";
-	string input;
-	cin >> input;
-	if (!input.empty()) {
-		if (input[0] == '\n' || input[0] == 'y' || input[0] == 'Y')
-			run_evaluator();
-		else
-			exit(0);
-	}
-}
-
 /* Evaluating a expression. */
 Object eval(vector<string>& split)
 {
 	delete_ends_parentheses(split);
 	if (split.empty())
 		return Object();
-	else if (split.size() == 1)
+	else if (split.size() == 1) {
+		if (split[0] == "quit" || split[0] == "exit")
+			Primitive::quit(vector<Object>{});
 		return eval(split[0]);
+	}
 	else {
 		/* Eval operator -- proc */
 		Object proc = eval(split[0]);
@@ -90,6 +113,7 @@ Object eval(vector<string>& split)
 				args.push_back(eval(sub_exp));
 				i = it - split.begin() + 1;
 			}
+
 			/* Eval a single operand -- self-evaluating */
 			else 
 				args.push_back(eval(split[i]));
@@ -138,7 +162,7 @@ Object eval(string& str)
 			 * last environment(local) to the first one(global) 
 			 */
 #ifndef NDEBUG
-			cout << "DEBUG eval(): " << envs.size() << endl;
+			cout << "DEBUG eval(): " << str << " " << envs.size() << endl;
 #endif
 #if 0
 			for (auto &e : envs) {
@@ -167,7 +191,7 @@ Object apply_proc(Object &proc, vector<Object>& obs)
 {
 	if (proc.get_type() != PROCEDURE) {
 #ifndef NDEBUG
-		cout << "DEBUG: Object apply_proc(Object &proc, vector<Object>& obs)" << endl;
+		cout << "DEBUG: Object apply_proc(Object &proc, vector<Object>& obs)\n";
 #endif
 		error_handler("ERROR: unknown procedure -- apply_proc()");
 	}
@@ -177,17 +201,4 @@ Object apply_proc(Object &proc, vector<Object>& obs)
 	/* Compound procedure -- lambda procedure */
 	else if (op->get_type() == COMPOUND)
 		;/* to do */
-}
-
-void initialize_environment()
-{
-	if (envs.empty())
-		envs.push_back(unordered_map<string, Object>());
-
-	envs[0]["+"] = Object(Procedure(Primitive::add));
-	envs[0]["quit"] = Object(Procedure(Primitive::quit));
-	envs[0]["exit"] = Object(Procedure(Primitive::quit));
-	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
-	envs[0]["list"] = Object(Procedure(Primitive::make_list));
-	envs[0]["display"] = Object(Procedure(Primitive::display));
 }
