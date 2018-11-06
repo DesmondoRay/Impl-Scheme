@@ -10,7 +10,7 @@
 
 namespace Primitive {
 	/* Quit */
-	/* Note: obs could/should be empty */
+	/* Note: obs should/could be empty */
 	Object quit(vector<Object>& obs);
 
 /* Primitive operation, note: result's type could be INTEGER or REAL */
@@ -34,7 +34,8 @@ namespace Primitive {
 	/* Return true if obs[0] == obs[1] == obs[2] == ... == obs[n] */
 	/* arguments must be numbers */
 	Object op_equal(vector<Object>& obs);
-	/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
+
+/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
 	/* arguments could be all types */
 	Object equal(vector<Object>& obs);
 

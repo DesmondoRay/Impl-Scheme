@@ -31,7 +31,7 @@ Object Primitive::add(vector<Object>& obs)
 	if (sum_f != 0.0)
 		return Object(sum_i + sum_f);	// Result's type is REAL
 	if (sum_i > INT_MAX || sum_i < INT_MIN)
-		cerr << "WARING: overflow -- *, " << sum_i
+		cerr << "WARING: overflow -- +, " << sum_i
 		<< " --> " << static_cast<int>(sum_i) << endl;
 	return Object(static_cast<int>(sum_i));	// Result's type is INTEGER
 }
@@ -229,14 +229,15 @@ Object Primitive::display(vector<Object>& obs)
 			Primitive::display(vector<Object>{spc->car()});
 			cout << ". ";
 			Primitive::display(vector<Object>{spc->cdr()});
-			// Backspace, example: (cons 1 2) print (1 . 2), instead of (1 . 2 )
+			/* Backspace, (cons 1 2) print (1 . 2) then, instead of (1 . 2 )*/
 			cout << "\b) ";
 			break;
 		case LIST:
 			cout << "(";
 			for (auto &ob : ob.get_list()->lst)
 				Primitive::display(vector<Object>{ob});
-			cout << "\b) ";	// backspace
+			/* Backspace, (list 1 2 3) print (1 2 3), instead of (1 2 3 ) */
+			cout << "\b) ";
 			break;
 		default: /* UNASSIGNED */
 			cerr << "null";
@@ -251,7 +252,7 @@ Object Primitive::newline(vector<Object>& obs) {
 	return Object();
 }
 
-/* Load code from input file and evaluate */
+/* Load code from file and evaluate */
 Object Primitive::load(vector<Object>& obs)
 {
 	if (obs.empty())

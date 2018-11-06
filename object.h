@@ -14,12 +14,13 @@ class Procedure;
 class Cons;
 class List;
 
+/* Types of data */
 enum { 
 	UNASSIGNED = 0, INTEGER, REAL, BOOLEAN, 
 	STRING, PROCEDURE, CONS, LIST, KEYWORD
 };
 
-/* Object save several types of data */
+/* Object save several kinds of data */
 class Object {
 public:
 	/* Constructor */
@@ -40,7 +41,7 @@ public:
 	Object(const string& s, int t);
 
 
-	/* Operator= and destructor */
+	/* Operator and destructor */
 	Object& operator=(const Object& ob);
 	bool operator==(const Object& ob);
 	bool operator<(const Object& ob);
@@ -60,12 +61,13 @@ public:
 	shared_ptr<Cons> get_cons() const { return cons; };
 	shared_ptr<List> get_list() const { return lst; }
 
-	/* Used to operator<, operator> and operator= */
+	/* Used to operator< and operator> */
 	bool operator_inner(const Object& ob, const string& op);
 	
 private:
 	/* Used to copy constructor and copy control*/
 	void copy_inner(const Object& ob); 
+
 	int						type;
 	bool					boolean;
 	int						integer;
@@ -76,6 +78,7 @@ private:
 	shared_ptr<List>		lst;
 };
 
+/* Types of procedure */
 enum { UNKNOWN = 0, PRIMITIVE, COMPOUND };
 
 /* Procedure: 
@@ -94,6 +97,7 @@ public:
 
 	/* Others */
 	int get_type() const { return type; }
+	/* Return a function pointer */
 	Object(*get_primitive()) (vector<Object>&)  { return func; }
 	vector<string> get_parameters() const { return parameters; }
 	vector<string> get_body() const { return body; }

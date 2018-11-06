@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <algorithm>
 using namespace std;
+
 #include "object.h"
 #include "io_function.h"
 #include "primitive_procedures.h"
@@ -17,10 +18,11 @@ static vector<string> keywords{
 	"begin", "let", "cond", "else" 
 };
 
- using Environment = vector<unordered_map<string, Object>>;
+using SubEnv = unordered_map<string, Object>;
+using Environment = vector<SubEnv>;
 
- /* Reset the global environment. */
- void initialize_environment();
+/* Reset the global environment. */
+void initialize_environment();
 
 /* Reset evaluator, reset environment */
 void reset_evaluator();
@@ -29,8 +31,8 @@ void reset_evaluator();
 void error_handler(const string& s);
 
 /* Evaluator start. */
-/* mode == 0: print prompt, such as ">>> Eval input: ";
- * mode == 1: don't print prompt, used to load file.
+/* mode == 0: print prompt, such as ">>> Eval input: " and ">>> Eval value: ";
+ * mode == 1: don't print prompt, used to evaluate code from file.
  */
 void run_evaluator(istream &in, int mode = 0);
 

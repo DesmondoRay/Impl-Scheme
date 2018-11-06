@@ -39,6 +39,9 @@ static void test_io()
 	} ? test_pass++ : 1;
 }
 
+/* Report_error, for example: 
+ * <TEST ERROR> line: 72, expect: { integer, 8 }, actual: { integer, 7 } 
+ */
 #define REPORT_ERROR(expect, actual) \
 	do {\
 		cerr << "<TEST ERROR> line: " << __LINE__ << ", expect: { " \
@@ -65,6 +68,7 @@ static void test_io()
 /* Test +, -, *, / */
 static void test_primitive_1()
 {
+	/* INT_MAX: 2147483647 INT_MIN : -2147483648 */
 	TEST("(+ 3 4)", Object(3 + 4));
 	TEST("(+ -3 4)", Object(-3 + 4));
 	TEST("(+ 2.1 4 5.8)", Object(2.1 + 4 + 5.8));
@@ -113,6 +117,7 @@ static void test_primitive_2()
 	TEST("(equal? \"abc\" \"123\")", Object(false));
 	TEST("(eq? #t #t)", Object(true));
 	TEST("(eq? #t #f)", Object(false));
+	/* Compare two primitive procedure */
 	TEST("(eq? + +)", Object(true));
 	TEST("(eq? + -)", Object(false));
 	/* Compare two compound procedure */
@@ -124,8 +129,6 @@ static void test_primitive_2()
 /* Test define expression */
 static void test_define()
 {
-	/* INT_MAX: 2147483647 INT_MIN : -2147483648 */
-
 	TEST("(define n 5)", Object("define OK."));
 	TEST("(+ n 6)", Object(11));
 	TEST("(* 4.0 n)", Object(4.0 * 5));
@@ -172,6 +175,7 @@ static void test_lambda()
 		Object(3 * 4 * (3 + (3 + 4)))); 
 }
 
+/* Test evaluate code from file */
 static void test_file()
 {
 	istringstream iss("(load \"F:/Git/Learning/impl_scheme/test/test1.scm\")\n");

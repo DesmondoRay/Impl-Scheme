@@ -43,7 +43,7 @@ string get_input(istream &in)
 		if (ctmp == '\n') {
 			/* User input completed. */
 			if (cntParantheses == 0 && (cntQuotations & 1) == 0) break;
-			/* User enters a Enter in quotes */
+			/* User enters a [Enter] in quotes */
 			if ((cntQuotations & 1) == 1)
 				result += "\\n";
 			/* User input has not been completed. */

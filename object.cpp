@@ -32,6 +32,10 @@ Object& Object::operator=(const Object& ob) {
 }
 
 bool Object::operator_inner(const Object& ob, const string& op) {
+	/* This "=" is not c++'s "=", but "==", used by Primitive::op_equal() */
+	if (op != "<" && op != ">" && op != "=") 
+		error_handler(string("ERROR(runtime): Object::operator_inner() takes") + 
+			" <, >, = as second argument");
 	if (!is_number() && !ob.is_number()) {
 		string error_msg("ERROR(scheme): passed a ");
 		error_msg += ob.get_type_str();

@@ -2,16 +2,17 @@
 
 #include "eval.h"
 
-/* Declartion static env */
+/* Declartion static environments */
 /* env[0]: global environment, env[n]: local environment, for example:
-* 1. "(define a 3)" --> env[0]["a"] = 3, "a" is defined in the
-*	  global environment;
-* 2. "(define (func a b)
-*	     (define c 4)
-*       (+ a b c))"
-*    --> env[0]["func"] = <...compound procedure>, env[1]["c"] = 4,
-*    "c" is defined in the local environment.
-*/
+ * in the global environment: 
+ * 1. "(define a 3)" --> env[0]["a"] = 3, "a" is defined in the
+ *	  global environment;
+ * 2. "(define (func a b)
+ *	     (define c 4)
+ *       (+ a b c))"
+ *    --> env[0]["func"] = <...compound procedure>, env[1]["c"] = 4,
+ *    "c" is defined in the local environment.
+ */
 static Environment envs;
 
 /* Initialize/reset the global environment. */
@@ -27,7 +28,7 @@ void initialize_environment()
 	envs[0]["remainder"] = Object(Procedure(Primitive::remainder));
 	envs[0]["<"] = Object(Procedure(Primitive::less));
 	envs[0][">"] = Object(Procedure(Primitive::greater));
-	/* Note: = can take multiple arguments, "(= 1.0 1)" --> true */
+	/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
 	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
 	envs[0]["="] = Object(Procedure(Primitive::op_equal));
 	envs[0]["eq?"] = Object(Procedure(Primitive::equal));
@@ -146,7 +147,7 @@ Object eval(vector<string>& split)
 		vector<Object> args;
 		while (!split.empty()) {
 			/* Evaluate a subexpression, example: */
-			/* expression: "(display (cons 1 2))", sub_exp: "(cons 1 2)" */
+			/* "(display (* 1 2) (+ 3 4))" -> "(cons 1 2)" is subexpreession */
 			if (split[0] == "(") {
 				args.push_back(eval(get_subexp(split)));
 			}
@@ -196,7 +197,7 @@ Object eval(string& str)
 		return Object(str);
 	}
 	/* KEYWORD or PROCEDURE(or variable) */
-	/* example: "(define a 3)" --> variable: a, env["a"] = 3 */
+	/* example: "(define a 3)" --> variable: a, add "a" to envs, envs["a"] = 3 */
 	else {
 		if (find(keywords.begin(), keywords.end(), str) != keywords.end()) {
 			return Object(str, KEYWORD);
@@ -244,11 +245,13 @@ Object apply_proc(Object &op, vector<Object>& obs)
 	}
 	/* Handler with procedures */
 	shared_ptr<Procedure> proc = op.get_proc();
+	/* Primitive procedure */
 	if (proc->get_type() == PRIMITIVE)
 		return proc->get_primitive()(obs);
 	/* Compound procedure -- lambda procedure */
 	else if (proc->get_type() == COMPOUND) {
 		vector<string> parameters(proc->get_parameters());
+		/* The number of parameters not equal the number of arguments */
 		if (parameters.size() != obs.size()) {
 			string error_msg("ERROR(scheme): the procedure has been called with ");
 			error_msg.push_back(obs.size() + '0');
@@ -259,7 +262,7 @@ Object apply_proc(Object &op, vector<Object>& obs)
 		}
 
 		/* Make a new environment to evaluate compound procedure */
-		unordered_map<string, Object> new_env;
+		SubEnv new_env;
 		for (int i = 0; i < parameters.size(); i++) {
 			new_env[parameters[i]] = obs[i]; /* Bind arguments to parameters */
 		}
@@ -300,9 +303,9 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 
 /* Handle with "define" expression, if define a compound procedure ,
  * convert to "lambda" expression, for example:
- * "(define (square x) (* x x))" --> args: {"(square x)", "(* x x)"},
- * "square": variable, "x": parameter, "(* x x)": body.
- * Convert to: (define square (lambda (x) (* x x)))
+ * "(define (square x) (* x x))" --> exp: {"(square x)", "(* x x)"},
+ * procedure name: "square", parameter: {"x"}, body: "(* x x)".
+ * Convert to: "(define square (lambda (x) (* x x)))"
  */
 Object eval_define(vector<string>& exp)
 {
@@ -321,7 +324,7 @@ Object eval_define(vector<string>& exp)
 	/* Define a procedure, convert to "lambda" expression */
 	if (exp[0] == "(") {
 		string variable = exp[1];
-		/* delete variable, {(square x), (* x x)} --> {(x), (* x x)} */
+		/* delete procedure name, {(square x), (* x x)} --> {(x), (* x x)} */
 		exp.erase(exp.begin() + 1); 
 		(*curr_env)[variable] = eval_lambda(exp);
 	}
@@ -339,8 +342,10 @@ Object eval_define(vector<string>& exp)
 	return Object("define OK.");
 }
 
-/* Handle with "define" expression, for example:
- * "(lambda (x) (+ x 3))" --> Procedure({"x"}, {"(", "+", "x", "3", ")"}),
+/* Handle with "lambda" expression, for example:
+ * "(lambda (x) (+ x 3))" --> Procedure({"x"}, {"(", "+", "x", "3", ")"});
+ * Procedure constructor:
+ *		Procedure(const vector<string>& params, const vector<string>& bdy);
  * construct a compound procedure, and return it as an Object.
  */
 Object eval_lambda(vector<string>& exp)
@@ -400,6 +405,7 @@ Object eval_if(vector<string>& exp) {
 			exp.erase(exp.begin());
 		}
 	}
+	/* Else return alternative */
 	else {
 		/* Skip consequent */
 		if (exp[0] == "(")
