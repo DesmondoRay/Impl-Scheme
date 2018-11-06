@@ -11,21 +11,47 @@ using namespace std;
 #include "io_function.h"
 #include "primitive_procedures.h"
 
-using Environment = unordered_map<string, Object>;
+static vector<string> keywords{
+	"define", "if", "set", "lambda", "begin", "let", "cond", "else" };
 
-/* Evaluator start. */
-void run_evaluator(Environment& env);
+using Environment = vector<unordered_map<string, Object>>;
 
-/* Evaluating a expression. */
-Object eval(vector<string>& split, Environment& env);
+class Evaluator {
+public:
+	/* Constructor */
+	Evaluator();
 
-/* Delete parentheses of two ends */
-void delete_ends_parentheses(vector<string>& split);
+	/* Evaluator start. */
+	void run_evaluator();
 
-/* Evaluating a single string. */
-Object eval(string& str, Environment& env);
+	/* Reset evaluator, reset environment */
+	void reset_evaluator();
+private:
+	/* Evaluating a expression. */
+	Object eval(vector<string>& split);
 
-/* Call proc with obs. */
-Object apply_proc(Object &proc, vector<Object>& obs, Environment& env);
+	/* Delete parentheses of two ends */
+	void delete_ends_parentheses(vector<string>& split);
+
+	/* Evaluating a single string. */
+	Object eval(string& str);
+
+	/* Call proc with obs. */
+	Object apply_proc(Object &proc, vector<Object>& obs);
+
+	/* Reset the global environment. */
+	void initialize_environment();
+
+	/* env[0]: global environment, env[n]: local environment, for example:
+	 * 1. "(define a 3)" --> env[0]["a"] = 3, "a" is defined in the 
+	 *	  global environment;
+	 * 2. "(define (func a b)
+	 *	     (define c 4)
+	 *       (+ a b c))"
+	 *    --> env[0]["func"] = <...compound procedure>, env[1]["c"] = 4,
+	 *    "c" is defined in the local environment.
+	 */
+	static Environment env;
+};
 
 #endif

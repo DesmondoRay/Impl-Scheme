@@ -2,12 +2,23 @@
 
 #include "eval.h"
 
-static vector<string> keywords{ 
-	"define", "if", "set", "lambda", "begin", "let", "cond", "else" };
+/* Declartion static env */
+Environment Evaluator::env;
+
+/* Constructor */
+Evaluator::Evaluator() {
+	if (env.empty())
+		env.push_back(unordered_map<string, Object>());
+	initialize_environment();
+}
 
 /* Evaluator start. */
-void run_evaluator(Environment& env)
+void Evaluator::run_evaluator()
 {
+	/* Keep only the global environment */
+	if (env.size() > 1)
+		env.erase(env.begin() + 1, env.end()); 
+
 	while (true) {
 		prompt();
 		string input = get_input();
@@ -15,22 +26,29 @@ void run_evaluator(Environment& env)
 			continue;
 
 		vector<string> split = split_input(input);
-		Object result = eval(split, env);
+		Object result = eval(split);
 		print_result(result);
 	}
 }
 
+/* Reset environment, restart evaluator then */
+void Evaluator::reset_evaluator()
+{
+	initialize_environment();
+	run_evaluator();
+}
+
 /* Evaluating a expression. */
-Object eval(vector<string>& split, Environment& env)
+Object Evaluator::eval(vector<string>& split)
 {
 	delete_ends_parentheses(split);
 	if (split.empty())
 		return Object();
 	else if (split.size() == 1)
-		return eval(split[0], env);
+		return eval(split[0]);
 	else {
 		/* Eval operator -- proc */
-		Object proc = eval(split[0], env);
+		Object proc = eval(split[0]);
 #ifndef NDEBUG
 		cout << "DEBUG eval(): " << proc.get_type() << endl;
 #endif
@@ -43,22 +61,22 @@ Object eval(vector<string>& split, Environment& env)
 				auto it = find(split.begin() + i, split.end(), ")");
 				if (it == split.end()) {
 					cerr << "ERROR: illegal expression -- eval()" << endl;
-					run_evaluator(env);
+					run_evaluator();
 				}
 				vector<string> sub_exp(split.begin() + i, it + 1);
-				args.push_back(eval(sub_exp, env));
+				args.push_back(eval(sub_exp));
 				i = it - split.begin() + 1;
 			}
 			/* Eval a single operand -- self-evaluating */
 			else 
-				args.push_back(eval(split[i], env));
+				args.push_back(eval(split[i]));
 		}
-		return apply_proc(proc, args, env);
+		return apply_proc(proc, args);
 	}
 }
 
 /* Delete parentheses of two ends */
-void delete_ends_parentheses(vector<string>& split)
+void Evaluator::delete_ends_parentheses(vector<string>& split)
 {
 	if (split.empty())
 		return;
@@ -69,7 +87,7 @@ void delete_ends_parentheses(vector<string>& split)
 }
 
 /* Evaluating a single object. */
-Object eval(string& str, Environment& env)
+Object Evaluator::eval(string& str)
 {
 	/* NUMBER or REAL */
 	if (isdigit(str[0])) {
@@ -92,21 +110,37 @@ Object eval(string& str, Environment& env)
 	else {
 		if (find(keywords.begin(), keywords.end(), str) != keywords.end())
 			return Object(str, KEYWORD);
-		else if (env.find(str) != env.end())
-			return env[str];
 		else {
+			/* Look for variables in each environment from the 
+			 * last environment(local) to the first one(global) 
+			 */
+#ifndef NDEBUG
+			cout << "DEBUG eval(): " << env.size() << endl;
+#endif
+#if 0
+			for (auto &e : env) {
+				if (e.find(str) != e.end())
+					return e[str];
+			}
+#endif
+#if 1
+			for (auto it = env.rbegin(); it != env.rend(); ++it) {
+				if (it->find(str) != it->end())
+					return (*it)[str];
+			}
+#endif
 			cerr << "ERROR: unknown symbol: " << str << " -- eval()" << endl;
-			run_evaluator(env);
+			run_evaluator();
 		}
 	}
 }
 
 /* Call proc with obs. */
-Object apply_proc(Object &proc, vector<Object>& obs, Environment& env)
+Object Evaluator::apply_proc(Object &proc, vector<Object>& obs)
 {
 	if (proc.get_type() != PROCEDURE) {
 		cerr << "ERROR: unknown procedure -- apply_proc()" << endl;
-		run_evaluator(env);
+		run_evaluator();
 	}
 	shared_ptr<Procedure> op = proc.get_proc();
 	if (op->get_type() == PRIMITIVE)
@@ -114,4 +148,14 @@ Object apply_proc(Object &proc, vector<Object>& obs, Environment& env)
 	/* Compound procedure -- lambda procedure */
 	else if (op->get_type() == COMPOUND)
 		;/* to do */
+}
+
+void Evaluator::initialize_environment()
+{
+	env[0]["+"] = Object(Procedure(Primitive::add));
+	env[0]["quit"] = Object(Procedure(Primitive::quit));
+	env[0]["exit"] = Object(Procedure(Primitive::quit));
+	env[0]["cons"] = Object(Procedure(Primitive::make_cons));
+	env[0]["list"] = Object(Procedure(Primitive::make_list));
+	env[0]["display"] = Object(Procedure(Primitive::display));
 }
