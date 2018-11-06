@@ -37,6 +37,7 @@ void initialize_environment()
 	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
 	envs[0]["list"] = Object(Procedure(Primitive::make_list));
 	envs[0]["display"] = Object(Procedure(Primitive::display));
+	envs[0]["newline"] = Object(Procedure(Primitive::newline));
 	envs[0]["load"] = Object(Procedure(Primitive::load));
 }
 
