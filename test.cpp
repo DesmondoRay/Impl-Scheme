@@ -44,8 +44,8 @@ static void test_io()
  */
 #define REPORT_ERROR(actual, expect) \
 	do {\
-		cerr << "<TEST ERROR> line: " << __LINE__ << ", expect: { " \
-			<< expect.get_type_str() << ", ";\
+		cerr << "<TEST ERROR> line: " << __LINE__ /*<< __FILE__ */ \
+			<< ", expect: { " << expect.get_type_str() << ", ";\
 		Primitive::display(vector<Object>{expect});\
 		cerr << "}, actual: { " << actual.get_type_str() << ", ";\
 		Primitive::display(vector<Object>{actual});\
@@ -197,6 +197,13 @@ static void test_lambda()
 		Object(3 * 4 * (3 + (3 + 4)))); 
 }
 
+/* Test lambda expression */
+static void test_let()
+{
+	TEST("(let ((a 3) (b 4)) (+ a b))", Object(3 + 4));
+	TEST("(let ((add +) (mul *)) (mul (add 3 4) (add 2 3)))", Object(7 * 5));
+}
+
 /* Test evaluate code from file */
 static void test_file()
 {
@@ -214,6 +221,7 @@ void run_test()
 	test_primitive_2();
 	test_begin();
 	test_lambda();
+	test_let();
 	
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 

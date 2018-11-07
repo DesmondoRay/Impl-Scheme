@@ -317,6 +317,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 	case (4): /* begin expression */
 		return eval_begin(exp);
 	case (5): /* let expression */
+		return eval_let(exp);
 	case (6): /* cond expression */
 	case (7): /* else expression */
 	default:
@@ -370,7 +371,7 @@ Object eval_define(vector<string>& exp)
 }
 
 /* Handle with "lambda" expression, for example:
- * "(lambda (x) (+ x 3))" --> Procedure({"x"}, {"(", "+", "x", "3", ")"});
+ * "(lambda (x) (+ x 3))" --> parameters: {"x"}, body: "(+ x 3)",
  * Procedure constructor:
  *		Procedure(const vector<string>& params, const vector<string>& bdy);
  * construct a compound procedure, and return it as an Object.
@@ -387,7 +388,7 @@ Object eval_lambda(vector<string>& exp)
 		parameters.push_back(exp[i]);
 	}
 
-	/* Make the body a begin expression:"(begin (subexp1) (subexp2) ... )" */
+	/* Make the body a begin expression:"(begin <exp1> <exp2> ... <expn> )" */
 	vector<string> body{ "(", "begin", ")" };
 	body.insert(body.begin() + 2, exp.begin() + i + 1, exp.end());
 
@@ -466,4 +467,40 @@ Object eval_begin(vector<string>& exp)
 	}
 
 	return result;
+}
+
+/* Handler with "let" expression, convert "let" expression to "lambda" 
+ * expression, for example:
+ * (let ((<var1> <exp1>) ... (<var_n><exp_n>)) <body>)
+ * --> ((lambda (<var1> ... <var_n>) <body>) <exp1> ... <exp_n>)
+ */
+Object eval_let(vector<string>& exp)
+{
+	if (exp.empty())
+		error_handler("ERROR(scheme): ill-formed special from: let");
+	
+	/* Split exp into vars, exps and body */
+	vector<string> pairs_of_vars_and_exps = get_subexp(exp);
+	vector<string> body = exp;
+
+	delete_ends_parentheses(pairs_of_vars_and_exps);
+	vector<string> vars, exps;
+	while (!pairs_of_vars_and_exps.empty()) {
+		/* one_pair: (<var> <exp>) */
+		vector<string> one_pair = get_subexp(pairs_of_vars_and_exps); 
+		vars.push_back(one_pair[1]);
+		exps.push_back(one_pair[2]);
+	}
+
+	/* Convert to "lambda" expression */
+	vector<string> make_lambda{ "(", "(", "lambda", "(" };
+	make_lambda.insert(make_lambda.end(), vars.begin(), vars.end());
+	make_lambda.push_back(")");
+	make_lambda.insert(make_lambda.end(), body.begin(), body.end());
+	make_lambda.push_back(")");
+	make_lambda.insert(make_lambda.end(), exps.begin(), exps.end());
+	make_lambda.push_back(")");
+	
+	/* Evaluate "lambda" expression */
+	return eval(make_lambda);
 }

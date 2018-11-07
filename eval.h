@@ -66,4 +66,7 @@ Object eval_if(vector<string>& exp);
 /* Handler with "begin" expression */
 Object eval_begin(vector<string>& exp);
 
+/* Handler with "begin" expression */
+Object eval_let(vector<string>& exp);
+
 #endif
