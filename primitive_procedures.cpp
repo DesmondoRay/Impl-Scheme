@@ -211,7 +211,7 @@ Object Primitive::display(vector<Object>& obs)
 		shared_ptr<Cons> spc; /* Used to display Cons */
 		switch (type) {
 		case UNASSIGNED:
-			cerr << "null";
+			cerr << "null ";
 			break;
 		case INTEGER:
 			cout << ob.get_integer() << " ";

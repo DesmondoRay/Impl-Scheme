@@ -68,6 +68,7 @@ bool Object::operator==(const Object& ob) {
 		return true; /* to do */
 	else if (type == LIST)
 		return true; /* to do */
+	return true; // UNASSIGNED
 }
 
 bool Object::operator<(const Object& ob) {

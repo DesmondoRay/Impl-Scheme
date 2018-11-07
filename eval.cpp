@@ -319,7 +319,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 	case (5): /* let expression */
 		return eval_let(exp);
 	case (6): /* cond expression */
-	case (7): /* else expression */
+		return eval_cond(exp);
 	default:
 #ifndef NDEBUG
 		cout << "DEBUG eval_keyword(): " << keyword << endl;
@@ -493,14 +493,64 @@ Object eval_let(vector<string>& exp)
 	}
 
 	/* Convert to "lambda" expression */
-	vector<string> make_lambda{ "(", "(", "lambda", "(" };
-	make_lambda.insert(make_lambda.end(), vars.begin(), vars.end());
-	make_lambda.push_back(")");
-	make_lambda.insert(make_lambda.end(), body.begin(), body.end());
-	make_lambda.push_back(")");
-	make_lambda.insert(make_lambda.end(), exps.begin(), exps.end());
-	make_lambda.push_back(")");
+	vector<string> lambda_exp{ "(", "(", "lambda", "(" };
+	lambda_exp.insert(lambda_exp.end(), vars.begin(), vars.end());
+	lambda_exp.push_back(")");
+	lambda_exp.insert(lambda_exp.end(), body.begin(), body.end());
+	lambda_exp.push_back(")");
+	lambda_exp.insert(lambda_exp.end(), exps.begin(), exps.end());
+	lambda_exp.push_back(")");
 	
 	/* Evaluate "lambda" expression */
-	return eval(make_lambda);
+	return eval(lambda_exp);
+}
+
+/* Handler with "cond" expression, for example:
+ * (cond ((> x 0) x)
+ *		 ((= x 0) (display 'zero) 0)
+ *		 (else (- x)))
+ * In this example, "(> x 0)" and "(= x 0)" are predicates.
+ */
+Object eval_cond(vector<string>& exp)
+{
+	if (exp.empty())
+		error_handler("ERROR(scheme): ill-formed special -- cond");
+
+	/* If the first sub exp is "else" expression */
+	while (!exp.empty()) {
+		/* Get first clause */
+		vector<string> first_clause = get_subexp(exp);
+		delete_ends_parentheses(first_clause);
+
+		if (first_clause[0] == "else") {
+			if (exp.empty())
+				/* Delete "else" */
+				first_clause.erase(first_clause.begin());
+			else
+				/* There are exps after "else" expression */
+				error_handler("ERROR(scheme): else clause isn't last -- cond");
+		}
+		else {
+			/* Check if predicate is true */
+			Object predicate;
+			if (first_clause[0] == "(")
+				predicate = eval(get_subexp(first_clause));
+			else
+				predicate = eval(get_single(first_clause));
+
+			/* If predicate is false, evaluate next predicate */
+			if (!is_true(predicate))
+				continue;
+			/* Else goto following step */
+		}
+
+		/* Make a "begin" expression */
+		vector<string> begin_exp{ "(", "begin", ")" };
+		begin_exp.insert(begin_exp.begin() + 2,
+			first_clause.begin(), first_clause.end());
+		return eval(begin_exp);
+	}
+
+	/* If there is no "else" expression and no predicate is true, return null */
+	return Object();
 }

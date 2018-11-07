@@ -14,8 +14,7 @@ using namespace std;
 
 /* Keywords of Scheme */
 static vector<string> keywords{
-	"define", "if", "set", "lambda", 
-	"begin", "let", "cond", "else" 
+	"define", "if", "set", "lambda", "begin", "let", "cond"
 };
 
 using SubEnv = unordered_map<string, Object>;
@@ -68,5 +67,8 @@ Object eval_begin(vector<string>& exp);
 
 /* Handler with "begin" expression */
 Object eval_let(vector<string>& exp);
+
+/* Handler with "cond" expression */
+Object eval_cond(vector<string>& exp);
 
 #endif

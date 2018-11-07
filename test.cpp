@@ -197,11 +197,32 @@ static void test_lambda()
 		Object(3 * 4 * (3 + (3 + 4)))); 
 }
 
-/* Test lambda expression */
+/* Test let expression */
 static void test_let()
 {
 	TEST("(let ((a 3) (b 4)) (+ a b))", Object(3 + 4));
 	TEST("(let ((add +) (mul *)) (mul (add 3 4) (add 2 3)))", Object(7 * 5));
+}
+
+/* Test cond expression */
+static void test_cond()
+{
+	TEST("(define x 3)", Object("define OK."));
+	string code1("\
+(cond ((= x 2) 2)\
+      ((= x 3) 3))");
+	TEST(code1, Object(3));
+
+	string code2("\
+(cond ((= x 1) (+ x x))\
+	  ((= x 2) (* x x))\
+	  (else (* x x x)))");
+	TEST(code2, Object(3 * 3 * 3));
+
+	string code3("\
+(cond ((> x 5) 5)\
+	  ((< x 2) 2))");
+	TEST(code3, Object());
 }
 
 /* Test evaluate code from file */
@@ -222,6 +243,7 @@ void run_test()
 	test_begin();
 	test_lambda();
 	test_let();
+	test_cond();
 	
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 

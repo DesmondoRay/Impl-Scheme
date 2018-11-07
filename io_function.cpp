@@ -63,7 +63,7 @@ vector<string> split_input(string& input)
 	vector<string> split;
 	string tmp;
 	for (int i = 0; i < input.size(); ++i) {
-		if (input[i] == ' ') continue;
+		if (input[i] == ' ' || input[i] == '\t') continue;
 
 		int start = i;
 		/* Don't split "string", such as "abc def ghi". */
