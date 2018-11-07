@@ -11,6 +11,13 @@ Object Primitive::quit(vector<Object>& obs)
 	exit(0);
 }
 
+/* Reset Evaluator, initialize environment */
+Object Primitive::reset(vector<Object>& obs)
+{
+	reset_evaluator();
+	return Object();
+}
+
 /* Return the sum of obs. */
 Object Primitive::add(vector<Object>& obs)
 {
@@ -203,6 +210,9 @@ Object Primitive::display(vector<Object>& obs)
 #endif
 		shared_ptr<Cons> spc; /* Used to display Cons */
 		switch (type) {
+		case UNASSIGNED:
+			cerr << "null";
+			break;
 		case INTEGER:
 			cout << ob.get_integer() << " ";
 			break;
@@ -239,8 +249,8 @@ Object Primitive::display(vector<Object>& obs)
 			/* Backspace, (list 1 2 3) print (1 2 3), instead of (1 2 3 ) */
 			cout << "\b) ";
 			break;
-		default: /* UNASSIGNED */
-			cerr << "null";
+		default: 
+			error_handler("ERROR(scheme): unknown type -- display");
 		}
 	}
 	return Object();

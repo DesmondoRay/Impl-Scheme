@@ -35,6 +35,7 @@ void initialize_environment()
 	envs[0]["equal?"] = Object(Procedure(Primitive::equal));
 	envs[0]["quit"] = Object(Procedure(Primitive::quit));
 	envs[0]["exit"] = Object(Procedure(Primitive::quit));
+	envs[0]["reset"] = Object(Procedure(Primitive::reset));
 	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
 	envs[0]["list"] = Object(Procedure(Primitive::make_list));
 	envs[0]["display"] = Object(Procedure(Primitive::display));
@@ -95,6 +96,10 @@ void run_evaluator(istream& in, int mode)
 	return;
 }
 
+/* split = {"(", "+", "1", "2", ")", "3", "4"} 
+ * --> call get_subexp(split) will return {"(", "+", "1", "2", ")"};
+ * --> then, call get_single(split) will return "3".
+ */
 /* Get subexpression */
 static vector<string> get_subexp(vector<string>& split)
 {
@@ -107,32 +112,51 @@ static vector<string> get_subexp(vector<string>& split)
 	split.erase(split.begin(), split.begin() + i);
 	return result;
 }
+/* Get a single variable */
+static string get_single(vector<string>& split)
+{
+	string result = split[0];
+	split.erase(split.begin());
+	return result;
+}
 
 /* Evaluating a expression. */
 Object eval(vector<string>& split)
 {
-	delete_ends_parentheses(split);
 	if (split.empty())
 		return Object();
-	else if (split.size() == 1) {
+
+	/* Check if expression is a procedure, for example:
+	 * "(define (f) (+ 1 2))" --> "f" is a variable, "(f)" is a procedure;
+	 * when we input "f", evaluator will print "<compound procedure>",
+	 * and input "(f)", evaluator will return "3".
+	 */
+	int is_proc = 0;
+	if (split[0] == "(") {
+		is_proc = 1;
+		delete_ends_parentheses(split);
+	}
+	/* However, "quit" and "exit" are special cases, 
+	 * enter "quit" and "(quit)" will exit both.
+	 */
+	if (is_proc == 0 && split.size() == 1) {
 		if (split[0] == "quit" || split[0] == "exit")
 			Primitive::quit(vector<Object>{});
-		return eval(split[0]);
+		return eval(split[0]); /* Evaluate a variable */
 	}
 	else {
 		/* Evaluate operator */
 		Object op;
 		if (split[0] == "(") {
 			/* "lambda" anonymous function, for example: 
-			 * "((lambda a (+ a 3)) 3)", "(lambda a (+ a 3)" is a procedure, 
+			 * "((lambda a (+ a 3)) 3)", "(lambda a (+ a 3))" is a procedure, 
 			 * and it's arguments is "3".
 			 */
 			vector<string> subexp = get_subexp(split);
 			op = eval(subexp);
 		}
 		else {
-			op = eval(split[0]);
-			split.erase(split.begin());
+			op = eval(get_single(split));
 		}
 
 #ifndef NDEBUG
@@ -143,21 +167,20 @@ Object eval(vector<string>& split)
 			return eval_keyword(op.get_string(), split);
 		}
 
-		/* Else evaluate procedure and it's arguments */
+		/* Else evaluate arguments of the procedure */
 		vector<Object> args;
 		while (!split.empty()) {
 			/* Evaluate a subexpression, example: */
-			/* "(display (* 1 2) (+ 3 4))" -> "(cons 1 2)" is subexpreession */
+			/* "(display (* 1 2) (+ 3 4))" -> "(* 1 2)" is subexpreession */
 			if (split[0] == "(") {
 				args.push_back(eval(get_subexp(split)));
 			}
 			/* Self-evaluating, such as number, string, bool */
 			else {
-				args.push_back(eval(split[0]));
-				split.erase(split.begin());
+				args.push_back(eval(get_single(split)));
 			}
 		}
-		return apply_proc(op, args);
+		return apply_proc(op, args);	/* Call op with args */
 	}
 }
 
@@ -251,9 +274,10 @@ Object apply_proc(Object &op, vector<Object>& obs)
 	/* Compound procedure -- lambda procedure */
 	else if (proc->get_type() == COMPOUND) {
 		vector<string> parameters(proc->get_parameters());
-		/* The number of parameters not equal the number of arguments */
+		/* The number of parameters is not equal the number of arguments */
 		if (parameters.size() != obs.size()) {
-			string error_msg("ERROR(scheme): the procedure has been called with ");
+			string error_msg("ERROR(scheme): the procedure has been "
+				"called with ");
 			error_msg.push_back(obs.size() + '0');
 			error_msg += " arguments, it requires exactly ";
 			error_msg.push_back(parameters.size() + '0');
@@ -266,10 +290,12 @@ Object apply_proc(Object &op, vector<Object>& obs)
 		for (int i = 0; i < parameters.size(); i++) {
 			new_env[parameters[i]] = obs[i]; /* Bind arguments to parameters */
 		}
+
 		expand_env(new_env);
 		/* Evaluating in a expanded environment */
 		Object result = eval(proc->get_body());	
 		remove_env();
+
 		return result;
 	}
 }
@@ -289,6 +315,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 	case (3): /* lambda expression */
 		return eval_lambda(exp);
 	case (4): /* begin expression */
+		return eval_begin(exp);
 	case (5): /* let expression */
 	case (6): /* cond expression */
 	case (7): /* else expression */
@@ -359,7 +386,10 @@ Object eval_lambda(vector<string>& exp)
 	for (; i < exp.size() && exp[i] != ")"; i++) {
 		parameters.push_back(exp[i]);
 	}
-	vector<string> body(exp.begin() + i + 1, exp.end());
+
+	/* Make the body a begin expression:"(begin (subexp1) (subexp2) ... )" */
+	vector<string> body{ "(", "begin", ")" };
+	body.insert(body.begin() + 2, exp.begin() + i + 1, exp.end());
 
 	/* Construct a compound procedure */
 	Procedure proc(parameters, body);
@@ -384,13 +414,12 @@ Object eval_if(vector<string>& exp) {
 	Object predicate, consequent, alternative;
 	/* Evaluate predicate */
 	if (exp.empty())
-		error_handler("");
+		error_handler("ERROR(scheme): Ill-formed special -- if");
 	else if (exp[0] == "(") {
 		predicate = eval(get_subexp(exp));
 	}
 	else {
-		predicate = eval(exp[0]);
-		exp.erase(exp.begin());
+		predicate = eval(get_single(exp));
 	}
 
 	if (exp.empty())
@@ -401,8 +430,7 @@ Object eval_if(vector<string>& exp) {
 		if (exp[0] == "(")
 			return eval(get_subexp(exp));
 		else {
-			return eval(exp[0]);
-			exp.erase(exp.begin());
+			return eval(get_single(exp));
 		}
 	}
 	/* Else return alternative */
@@ -411,7 +439,7 @@ Object eval_if(vector<string>& exp) {
 		if (exp[0] == "(")
 			get_subexp(exp);
 		else
-			exp.erase(exp.begin());
+			get_single(exp);
 
 		if (exp.empty())	/* Alternative could be empty */
 			return Object();
@@ -420,4 +448,22 @@ Object eval_if(vector<string>& exp) {
 		else
 			return eval(exp[0]);
 	}
+}
+
+/* Handler with "begin" expression, for example:
+ * exp == "(begin (+ 1 2) (+ 3 4))";
+ * First evaluate "(+ 1 2)", and then evaluate "(+ 3 4)", 
+ * and return the last subexpression as the result.
+ */
+Object eval_begin(vector<string>& exp)
+{
+	Object result;
+	while (!exp.empty()) { /* Exp may be empty */
+		if (exp[0] == "(")
+			result = eval(get_subexp(exp));
+		else
+			result = eval(get_single(exp));
+	}
+
+	return result;
 }

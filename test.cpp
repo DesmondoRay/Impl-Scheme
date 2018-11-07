@@ -165,9 +165,27 @@ static void test_define()
 	TEST("(fib 3)", Object(2));
 	TEST("(fib 4)", Object(3));
 	TEST("(fib 10)", Object(55));
-	
-	// test("(define (f a b) (define c 5) (+ a b c))", Object("define OK."));
-	// test("(f 1 2)", Object(1 + 2 + 5));
+}
+
+/* Test define expression */
+static void test_begin()
+{
+	string code("\
+(define (f1 a b)\
+  (define c 5)\
+  (+ a b c))"); /* "c" is a local variable */
+
+	TEST(code, Object("define OK."));
+	TEST("(f1 1 2)", Object(1 + 2 + 5));
+	TEST("(f1 2.3 4.5)", Object(2.3 + 4.5 + 5));
+
+	code = "\
+(define (f2 a b)\
+  (+ a b)\
+  (define c 5))"; /* Return the last subexpression as the result */
+
+	TEST(code, Object("define OK."));
+	TEST("(f2 2 3)", Object("define OK.")); 
 }
 
 /* Test lambda expression */
@@ -194,11 +212,13 @@ void run_test()
 	test_primitive_1();
 	test_define();
 	test_primitive_2();
+	test_begin();
 	test_lambda();
 	
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
 	// test_file();
 
+	reset_evaluator();
 	return;
 }

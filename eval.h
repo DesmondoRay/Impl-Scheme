@@ -63,4 +63,7 @@ bool is_true(Object& ob);
 /* Handler with "if" expression */
 Object eval_if(vector<string>& exp);
 
+/* Handler with "begin" expression */
+Object eval_begin(vector<string>& exp);
+
 #endif

@@ -13,6 +13,10 @@ namespace Primitive {
 	/* Note: obs should/could be empty */
 	Object quit(vector<Object>& obs);
 
+	/* Reset Evaluator, initialize environment */
+	/* Note: obs should/could be empty */
+	Object reset(vector<Object>& obs);
+
 /* Primitive operation, note: result's type could be INTEGER or REAL */
 	/* Return the sum of obs */
 	Object add(vector<Object>& obs);

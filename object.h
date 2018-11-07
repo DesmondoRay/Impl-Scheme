@@ -69,9 +69,9 @@ private:
 	void copy_inner(const Object& ob); 
 
 	int						type;
-	bool					boolean;
 	int						integer;
 	double					real;
+	bool					boolean;
 	string					str;
 	shared_ptr<Procedure>	proc;
 	shared_ptr<Cons>		cons;
