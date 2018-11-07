@@ -12,21 +12,14 @@ using namespace std;
 #include "eval.h"
 
 void run_test();
-
-void pre_load(string& code)
-{
-	istringstream iss(code);
-	string input = get_input(iss); 
-	vector<string> split = split_input(input); 
-	Object result = eval(split); 
-}
+void load_code(const string& code);
 
 int main(int argc, char **argv)
 {
 	initialize_environment();
 
 #if 1
-	// run_test();
+	run_test();
 
 	string code1("\
 (define (make-withdraw balance)\
@@ -38,11 +31,11 @@ int main(int argc, char **argv)
 \n");
 	string code2("(define w1 (make-withdraw 100))\n");
 	string code3("(define w2 (make-withdraw 200))\n");
-	pre_load(string("(define (f) (+ 1 2))\n"));
-	pre_load(string("(f)\n"));
-	pre_load(code1);
-	pre_load(code2);
-	pre_load(code3);
+	load_code(string("(define (f) (+ 1 2))\n"));
+	load_code(string("(f)\n"));
+	load_code(code1);
+	load_code(code2);
+	load_code(code3);
 #endif
 
 	if (argc == 1)

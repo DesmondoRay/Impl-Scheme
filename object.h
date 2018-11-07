@@ -163,6 +163,7 @@ public:
 	Cons() = delete;
 	Cons(const Object& a, const Object& b) : pir(make_pair(a, b)) {}
 	explicit Cons(const vector<Object> &obs);
+
 	~Cons() {}
 
 	/* Others */

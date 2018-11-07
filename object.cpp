@@ -65,9 +65,9 @@ bool Object::operator==(const Object& ob) {
 	else if (type == PROCEDURE)
 		return proc == ob.get_proc();
 	else if (type == CONS)
-		return true; /* to do */
+		return cons == ob.get_cons();
 	else if (type == LIST)
-		return true; /* to do */
+		return lst == ob.get_list();
 	return true; // UNASSIGNED
 }
 

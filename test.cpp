@@ -39,8 +39,18 @@ static void test_io()
 	} ? test_pass++ : 1;
 }
 
-/* Report_error, for example: 
- * <TEST ERROR> line: 72, expect: { integer, 8 }, actual: { integer, 7 } 
+void load_code(const string& code)
+{
+	string copy(code);
+	copy.push_back('\n');
+	istringstream iss(copy);
+	string input = get_input(iss);
+	vector<string> split = split_input(input);
+	Object result = eval(split);
+}
+
+/* Report_error, for example:
+ * <TEST ERROR> line: 72, expect: { integer, 8 }, actual: { integer, 7 }
  */
 #define REPORT_ERROR(actual, expect) \
 	do {\
@@ -54,12 +64,11 @@ static void test_io()
 
 #define TEST(code, expect_result)\
 	do {\
+		test_cnts++;\
 		string copy(code);\
-		copy.push_back('\n'); test_cnts++;\
-		istringstream iss(copy); \
-		string input = get_input(iss);\
-		vector<string> split = split_input(input);\
-		Object result = eval(split);\
+		copy.push_back('\n');\
+		istringstream iss(copy);\
+		Object result = eval(split_input(get_input(iss)));\
 		if (expect_result == result)\
 			test_pass++;\
 		else REPORT_ERROR(result, expect_result);\
@@ -130,6 +139,7 @@ static void test_primitive_2()
 	TEST("(equal? \"abc\" \"123\")", Object(false));
 	TEST("(eq? #t #t)", Object(true));
 	TEST("(eq? #t #f)", Object(false));
+
 	/* Compare two primitive procedure */
 	TEST("(eq? + +)", Object(true));
 	TEST("(eq? + -)", Object(false));
@@ -176,15 +186,14 @@ static void test_define()
 	TEST("(fib 10)", Object(55));
 }
 
-/* Test define expression */
+/* Test begin expression */
 static void test_begin()
 {
 	string code("\
 (define (f1 a b)\
   (define c 5)\
   (+ a b c))"); /* "c" is a local variable */
-
-	TEST(code, Object("define OK."));
+	load_code(code);
 	TEST("(f1 1 2)", Object(1 + 2 + 5));
 	TEST("(f1 2.3 4.5)", Object(2.3 + 4.5 + 5));
 
@@ -192,9 +201,18 @@ static void test_begin()
 (define (f2 a b)\
   (+ a b)\
   (define c 5))"; /* Return the last subexpression as the result */
-
-	TEST(code, Object("define OK."));
+	load_code(code);
 	TEST("(f2 2 3)", Object("define OK.")); 
+
+	TEST("\
+(begin (define c1 (cons 1 2))\n\
+  (define c2 (cons 1 2))\n\
+  (eq? c1 c2))",Object(false));
+
+	TEST("\
+(begin (define c3 (cons 1 2))\n\
+  (define c4 c3)\n\
+  (eq? c3 c4))", Object(true));
 }
 
 /* Test lambda expression */
@@ -216,7 +234,7 @@ static void test_let()
 /* Test cond expression */
 static void test_cond()
 {
-	TEST("(define x 3)", Object("define OK."));
+	load_code("(define x 3)");
 	string code1("\
 (cond ((= x 2) 2)\
       ((= x 3) 3))");
@@ -232,6 +250,33 @@ static void test_cond()
 (cond ((> x 5) 5)\
 	  ((< x 2) 2))");
 	TEST(code3, Object());
+}
+
+/* Test set! expression */
+static void test_set()
+{
+	string code1("\
+(define (make-withdraw balance)\
+  (lambda (amount)\
+    (if (>= balance amount)\
+		(begin (set! balance (- balance amount))\
+			   balance)\
+		\"Insufficient funds\")))\
+\n");
+	string code2("(define w1 (make-withdraw 100))\n");
+	string code3("(define w2 (make-withdraw 200))\n");
+
+	load_code(code1);
+	load_code(code2);
+	load_code(code3);
+	TEST("(w1 50)", Object(50));
+	TEST("(w1 22)", Object(28));
+	TEST("(w2 50)", Object(150));
+	TEST("(w2 22)", Object(128));
+	TEST("(w1 22)", Object(6));
+	TEST("(w2 22)", Object(106));
+	TEST("(w1 200)", Object("\"Insufficient funds\""));
+	TEST("(w2 200)", Object("\"Insufficient funds\""));
 }
 
 /* Test evaluate code from file */
@@ -253,6 +298,7 @@ void run_test()
 	test_lambda();
 	test_let();
 	test_cond();
+	test_set();
 	
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
