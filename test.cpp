@@ -42,7 +42,7 @@ static void test_io()
 /* Report_error, for example: 
  * <TEST ERROR> line: 72, expect: { integer, 8 }, actual: { integer, 7 } 
  */
-#define REPORT_ERROR(expect, actual) \
+#define REPORT_ERROR(actual, expect) \
 	do {\
 		cerr << "<TEST ERROR> line: " << __LINE__ << ", expect: { " \
 			<< expect.get_type_str() << ", ";\
@@ -60,9 +60,9 @@ static void test_io()
 		string input = get_input(iss);\
 		vector<string> split = split_input(input);\
 		Object result = eval(split);\
-		if (is_true(Primitive::equal(vector<Object>{expect_result, result})))\
+		if (expect_result == result)\
 			test_pass++;\
-		else REPORT_ERROR(expect_result, result);\
+		else REPORT_ERROR(result, expect_result);\
 	} while(0)
 
 /* Test +, -, *, / */
@@ -72,15 +72,19 @@ static void test_primitive_1()
 	TEST("(+ 3 4)", Object(3 + 4));
 	TEST("(+ -3 4)", Object(-3 + 4));
 	TEST("(+ 2.1 4 5.8)", Object(2.1 + 4 + 5.8));
+	TEST("(+ 2147483647 1)", Object(INT_MAX + 1));
+	TEST("(+ -2147483648 -1)", Object(INT_MIN - 1));
+
 	TEST("(- 1 5)", Object(1 - 5));
 	TEST("(- 5.23 2)", Object(5.23 - 2));
 	TEST("(- 5.23 -2)", Object(5.23 - (-2)));
-	TEST("(+ 2147483647 1)", Object(INT_MAX + 1));
-	TEST("(+ -2147483648 -1)", Object(INT_MIN - 1));
+	
 	TEST("(* 2147483647 34)", Object(INT_MAX * 34));
 	TEST("(* 23 -3)", Object(23 * (-3)));
+
 	TEST("(/ 2 3)", Object(2.0 / 3));
 	TEST("(/ 20 -3)", Object(20.0 / (-3)));
+
 	TEST("(remainder 20 3)", Object(20 % 3));
 	TEST("(remainder 4 7)", Object(4 % 7));
 	TEST("(remainder -14 7)", Object(-14 % 7));

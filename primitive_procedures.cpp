@@ -163,7 +163,7 @@ Object Primitive::op_equal(vector<Object>& obs) {
 
 	bool result = true;
 	for (int i = 0; i < obs.size() - 1; i++) {
-		result &= (obs[i].operator_inner(obs[i + 1], "="));
+		result &= (obs[i].operator_inner(obs[i + 1], "=="));
 	}
 	return Object(result);
 }
