@@ -21,26 +21,26 @@ void initialize_environment()
 	envs.clear();
 	envs.push_back(unordered_map<string, Object>());
 
-	envs[0]["+"] = Object(Procedure(Primitive::add));
-	envs[0]["-"] = Object(Procedure(Primitive::sub));
-	envs[0]["*"] = Object(Procedure(Primitive::mul));
-	envs[0]["/"] = Object(Procedure(Primitive::div));
-	envs[0]["remainder"] = Object(Procedure(Primitive::remainder));
-	envs[0]["<"] = Object(Procedure(Primitive::less));
-	envs[0][">"] = Object(Procedure(Primitive::greater));
+	envs[0]["+"] = Object(Procedure(Primitive::add, "+"));
+	envs[0]["-"] = Object(Procedure(Primitive::sub, "-"));
+	envs[0]["*"] = Object(Procedure(Primitive::mul, "*"));
+	envs[0]["/"] = Object(Procedure(Primitive::div, "/"));
+	envs[0]["remainder"] = Object(Procedure(Primitive::remainder, "remainder"));
+	envs[0]["<"] = Object(Procedure(Primitive::less, "<"));
+	envs[0][">"] = Object(Procedure(Primitive::greater, ">"));
 	/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
 	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
-	envs[0]["="] = Object(Procedure(Primitive::op_equal));
-	envs[0]["eq?"] = Object(Procedure(Primitive::equal));
-	envs[0]["equal?"] = Object(Procedure(Primitive::equal));
-	envs[0]["quit"] = Object(Procedure(Primitive::quit));
-	envs[0]["exit"] = Object(Procedure(Primitive::quit));
-	envs[0]["reset"] = Object(Procedure(Primitive::reset));
-	envs[0]["cons"] = Object(Procedure(Primitive::make_cons));
-	envs[0]["list"] = Object(Procedure(Primitive::make_list));
-	envs[0]["display"] = Object(Procedure(Primitive::display));
-	envs[0]["newline"] = Object(Procedure(Primitive::newline));
-	envs[0]["load"] = Object(Procedure(Primitive::load));
+	envs[0]["="] = Object(Procedure(Primitive::op_equal, "="));
+	envs[0]["eq?"] = Object(Procedure(Primitive::equal, "eq?"));
+	envs[0]["equal?"] = Object(Procedure(Primitive::equal, "eq?"));
+	envs[0]["quit"] = Object(Procedure(Primitive::quit, "quit"));
+	envs[0]["exit"] = Object(Procedure(Primitive::quit, "quit"));
+	envs[0]["reset"] = Object(Procedure(Primitive::reset, "reset"));
+	envs[0]["cons"] = Object(Procedure(Primitive::make_cons, "cons"));
+	envs[0]["list"] = Object(Procedure(Primitive::make_list, "list"));
+	envs[0]["display"] = Object(Procedure(Primitive::display, "display"));
+	envs[0]["newline"] = Object(Procedure(Primitive::newline, "newline"));
+	envs[0]["load"] = Object(Procedure(Primitive::load, "load"));
 }
 
 /* Reset environment, restart evaluator then */
@@ -351,10 +351,10 @@ Object eval_define(vector<string>& exp)
 	Environment::iterator curr_env = envs.end() - 1;
 	/* Define a procedure, convert to "lambda" expression */
 	if (exp[0] == "(") {
-		string variable = exp[1];
+		string proc_name = exp[1];
 		/* delete procedure name, {(square x), (* x x)} --> {(x), (* x x)} */
 		exp.erase(exp.begin() + 1); 
-		(*curr_env)[variable] = eval_lambda(exp);
+		(*curr_env)[proc_name] = eval_lambda(exp, proc_name);
 	}
 	/* Define a common variable, such as (define a 3);
 	 * or define a procedure, such as (define square (lambda (x) (* x x))).
@@ -376,7 +376,7 @@ Object eval_define(vector<string>& exp)
  *		Procedure(const vector<string>& params, const vector<string>& bdy);
  * construct a compound procedure, and return it as an Object.
  */
-Object eval_lambda(vector<string>& exp)
+Object eval_lambda(vector<string>& exp, const string& proc_name)
 {
 	if (exp.empty() || exp[0] != "(")
 		error_handler("ERROR(scheme): illegal lambda expression");
@@ -393,7 +393,7 @@ Object eval_lambda(vector<string>& exp)
 	body.insert(body.begin() + 2, exp.begin() + i + 1, exp.end());
 
 	/* Construct a compound procedure */
-	Procedure proc(parameters, body);
+	Procedure proc(parameters, body, proc_name);
 	return Object(proc);
 }
 

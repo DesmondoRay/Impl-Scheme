@@ -54,7 +54,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp);
 Object eval_define(vector<string>& args);
 
 /* Handle with "define" expression */
-Object eval_lambda(vector<string>& exp);
+Object eval_lambda(vector<string>& exp, const string& proc_name = "*anonymous*");
 
 /* Return true if object is some kinds of "true" */
 bool is_true(Object& ob);

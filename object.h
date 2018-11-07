@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <list>
 #include <memory>
 using namespace std;
@@ -90,23 +91,55 @@ class Procedure {
 public:
 	/* Constructor */
 	Procedure() : type(UNKNOWN) {}
-	explicit Procedure(const vector<string>& params, const vector<string>& bdy):
-		type(COMPOUND), func(nullptr), parameters(params), body(bdy) {}
-	explicit Procedure(Object(*f)(vector<Object>&)) :
-		type(PRIMITIVE), func(f), parameters({}), body({}) {}
+
+	/* Primitive procedure constructor */
+	Procedure(Object(*f)(vector<Object>&), const string& proc_name) :
+		type(PRIMITIVE), name(proc_name), func(f), parameters({}), body({}) {}
+
+	/* Compound procedure constructor */
+	Procedure(const vector<string>& params, const vector<string>& bdy, 
+		const string& proc_name): type(COMPOUND), name(proc_name), 
+		func(nullptr), parameters(params), body(bdy) {}
+
+	/* Anonymous procedure constructor */
+	Procedure(const vector<string>& params, const vector<string>& bdy) : 
+		type(COMPOUND), name("*anonymous*"), func(nullptr), 
+		parameters(params), body(bdy) {}
+
+	/* Destructor */
+	~Procedure() {}
 
 	/* Others */
 	int get_type() const { return type; }
-	/* Return a function pointer */
+	string get_proc_name() const { return name; }
+	/* Return a function pointer -- primitive procedure */
 	Object(*get_primitive()) (vector<Object>&)  { return func; }
+
+	/* Return parameters and body of compound procedure */
 	vector<string> get_parameters() const { return parameters; }
 	vector<string> get_body() const { return body; }
+
+	/* Static environment, store static local variable. */
+	/* Same type with SubEnv -- eval.h, and it could be changed/modified. */
+	using StaticEnv = unordered_map<string, Object>;
+	/* Return static_env, used to expand evaluator's environment. */
+	StaticEnv get_env() const { return static_env; } 
+	/* Define a new variable or update a existed variable in static_env. */
+	void set_env(const string& variable, const Object& value) {
+		static_env[variable] = value;
+	}
 private:
-	int type;					/* Type of procdure, primitive or compound */
-	Object(*func)(vector<Object>&);	/* Primitive procedure, such as +, square */
+	int		type;		/* Type of procedure, PRIMITIVE or COMPOUND */
+	string	name;		/* name of procedure */
+
+	/* Primitive procedure, such as +, square */
+	Object(*func)(vector<Object>&);	
+
+	/* Compound procedure */
 	struct {
-		vector<string> parameters;	/* Save parameters of "lambda" expression*/
-		vector<string> body;		/* Save body of "lambda" expression*/
+		vector<string>	parameters;	/* Store parameters of "lambda" expression*/
+		vector<string>	body;		/* Store body of "lambda" expression*/
+		StaticEnv		static_env;	/* Store static variables */
 	};
 
 	/* Why not choose to use string to save compound procedures:

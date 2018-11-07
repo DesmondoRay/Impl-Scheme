@@ -208,7 +208,9 @@ Object Primitive::display(vector<Object>& obs)
 #if 0
 		cout << "DEBUG display(): type of ob -- "<< ob.get_type_str() << endl;
 #endif
-		shared_ptr<Cons> spc; /* Used to display Cons */
+		shared_ptr<Cons> spc;	/* Used to display Cons */
+		int proc_type;			/* Used to display procedure */
+		string proc_name;		/* Used to display procedure */
 		switch (type) {
 		case UNASSIGNED:
 			cerr << "null ";
@@ -226,10 +228,12 @@ Object Primitive::display(vector<Object>& obs)
 			cout << ob.get_string() << " ";
 			break;
 		case PROCEDURE:
-			if (ob.get_proc()->get_type() == PRIMITIVE)
-				cout << "<primitive procedure>" << endl; /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-			else if (ob.get_proc()->get_type() == COMPOUND)
-				cout << "<compound procedure>" << endl;
+			proc_type = ob.get_proc()->get_type();
+			proc_name = ob.get_proc()->get_proc_name();
+			if (proc_type == PRIMITIVE)
+				cout << "<primitive procedure: " << proc_name << ">" << endl;
+			else if (proc_type == COMPOUND)
+				cout << "<compound procedure: " << proc_name << ">" << endl;
 			else
 				error_handler("ERROR(scheme): unknown procedure -- display");
 			break;
