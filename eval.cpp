@@ -312,6 +312,7 @@ Object eval_keyword(const string& keyword, vector<string>& exp)
 	case (1): /* if expression */
 		return eval_if(exp);
 	case (2): /* set expression */
+		return eval_set(exp);
 	case (3): /* lambda expression */
 		return eval_lambda(exp);
 	case (4): /* begin expression */
@@ -552,5 +553,14 @@ Object eval_cond(vector<string>& exp)
 	}
 
 	/* If there is no "else" expression and no predicate is true, return null */
+	return Object();
+}
+
+/* Handler with "set" expression, for example: 
+ * "(set! <var> <exp>)" 
+ * --> add <var> to current environment, or update it's value.
+ */
+Object eval_set(vector<string>& exp)
+{
 	return Object();
 }

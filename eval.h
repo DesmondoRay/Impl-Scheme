@@ -71,4 +71,7 @@ Object eval_let(vector<string>& exp);
 /* Handler with "cond" expression */
 Object eval_cond(vector<string>& exp);
 
+/* Handler with "set" expression */
+Object eval_set(vector<string>& exp);
+
 #endif

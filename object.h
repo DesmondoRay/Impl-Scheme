@@ -94,17 +94,19 @@ public:
 
 	/* Primitive procedure constructor */
 	Procedure(Object(*f)(vector<Object>&), const string& proc_name) :
-		type(PRIMITIVE), name(proc_name), func(f), parameters({}), body({}) {}
+		type(PRIMITIVE), name(proc_name), func(f), parameters({}), body({}),
+		static_env(StaticEnv()) {}
 
 	/* Compound procedure constructor */
 	Procedure(const vector<string>& params, const vector<string>& bdy, 
 		const string& proc_name): type(COMPOUND), name(proc_name), 
-		func(nullptr), parameters(params), body(bdy) {}
+		func(nullptr), parameters(params), body(bdy), 
+		static_env(StaticEnv()) {}
 
 	/* Anonymous procedure constructor */
 	Procedure(const vector<string>& params, const vector<string>& bdy) : 
 		type(COMPOUND), name("*anonymous*"), func(nullptr), 
-		parameters(params), body(bdy) {}
+		parameters(params), body(bdy), static_env(StaticEnv()) {}
 
 	/* Destructor */
 	~Procedure() {}
