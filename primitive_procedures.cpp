@@ -175,6 +175,36 @@ Object Primitive::op_equal(vector<Object>& obs) {
 	return Object(result);
 }
 
+/* Return true if obs[0] >= obs[1] >= obs[2] >= ... >= obs[n] */
+Object Primitive::greaterEqual(vector<Object>& obs)
+{
+	if (obs.size() < 2) {
+		error_handler("ERROR(scheme): >= takes at least two arguments");
+	}
+
+	bool result = true;
+	for (int i = 0; i < obs.size() - 1; i++) {
+		result &= (obs[i].operator>(obs[i + 1]) ||
+			obs[i].operator_inner(obs[i + 1], "=="));
+	}
+	return Object(result);
+}
+
+/* Return true if obs[0] <= obs[1] <= obs[2] <= ... <= obs[n] */
+Object Primitive::lessEqual(vector<Object>& obs)
+{
+	if (obs.size() < 2) {
+		error_handler("ERROR(scheme): <= takes at least two arguments");
+	}
+
+	bool result = true;
+	for (int i = 0; i < obs.size() - 1; i++) {
+		result &= (obs[i].operator<(obs[i + 1]) ||
+			obs[i].operator_inner(obs[i + 1], "=="));
+	}
+	return Object(result);
+}
+
 /* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
 Object Primitive::equal(vector<Object>& obs) {
 	if (obs.size() != 2) {

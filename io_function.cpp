@@ -20,7 +20,7 @@ string get_input(istream &in)
 	int cntParantheses = 0, cntQuotations = 0;
 	string stmp;
 	char ctmp;
-	while (true) {
+	while (in.good()) {
 		in.get(ctmp);
 		if (ctmp == ';') /* Ignore comment line. */
 			getline(in, stmp);

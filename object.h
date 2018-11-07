@@ -84,13 +84,16 @@ enum { UNKNOWN = 0, PRIMITIVE, COMPOUND };
 
 /* Procedure: 
  * save primitive procedure as a function pointer, implemented in 
- *	primitive_procedures.cpp;
+ * primitive_procedures.cpp;
  * save compound procedure as a vector of parameters and a vector of body.
  */
 class Procedure {
 public:
 	/* Constructor */
 	Procedure() : type(UNKNOWN) {}
+
+	// Procedure(const Procedure& p) = delete;
+	Procedure& operator==(const Procedure& p) = delete;
 
 	/* Primitive procedure constructor */
 	Procedure(Object(*f)(vector<Object>&), const string& proc_name) :
@@ -103,10 +106,15 @@ public:
 		func(nullptr), parameters(params), body(bdy), 
 		static_env(StaticEnv()) {}
 
+	/* Static environment, store static local variable. */
+	/* Same type with SubEnv -- eval.h, and it could be changed/modified. */
+	using StaticEnv = unordered_map<string, Object>;
+
 	/* Anonymous procedure constructor */
-	Procedure(const vector<string>& params, const vector<string>& bdy) : 
-		type(COMPOUND), name("*anonymous*"), func(nullptr), 
-		parameters(params), body(bdy), static_env(StaticEnv()) {}
+	Procedure(const vector<string>& params, const vector<string>& bdy, 
+		const string& proc_name, const StaticEnv& env) : 
+		type(COMPOUND), name(proc_name), func(nullptr),
+		parameters(params), body(bdy), static_env(env) {}
 
 	/* Destructor */
 	~Procedure() {}
@@ -121,9 +129,6 @@ public:
 	vector<string> get_parameters() const { return parameters; }
 	vector<string> get_body() const { return body; }
 
-	/* Static environment, store static local variable. */
-	/* Same type with SubEnv -- eval.h, and it could be changed/modified. */
-	using StaticEnv = unordered_map<string, Object>;
 	/* Return static_env, used to expand evaluator's environment. */
 	StaticEnv get_env() const { return static_env; } 
 	/* Define a new variable or update a existed variable in static_env. */

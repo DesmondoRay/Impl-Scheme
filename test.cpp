@@ -101,6 +101,11 @@ static void test_primitive_2()
 	TEST("(< 1.0 2 2.1 100)", Object(true));
 	TEST("(< 1.0 1 2.1 100)", Object(false));
 
+	TEST("(<= 1 2)", Object(1 <= 2));
+	TEST("(<= 2 2)", Object(2 <= 2));
+	TEST("(<= 2.0 2 2.0)", Object(true));
+	TEST("(<= -1 -1.0)", Object(true));
+
 	TEST("(> 1 2)", Object(1 > 2));
 	TEST("(> -1 -2)", Object(-1 > -2));
 	TEST("(> 1 1.0)", Object(1 > 1.0));
@@ -108,6 +113,10 @@ static void test_primitive_2()
 	TEST("(> 6 4 3 1)", Object(true));
 	TEST("(> 5 4.9999 4.3 2)", Object(true));
 	TEST("(> 7 5 3.333 3.334)", Object(false));
+
+	TEST("(>= 7 5 3.333 )", Object(true));
+	TEST("(>= -7 -8)", Object(true));
+	TEST("(>= 7 5 3.333 3.334)", Object(false));
 
 	TEST("(= 1.3 1.2)", Object(1.3 == 1.2));
 	TEST("(= (+ 1 1.0) (+ 0 2.0))", Object((1 + 1.0) == (0 + 2.0)));
@@ -144,7 +153,7 @@ static void test_define()
 	TEST("(define (square a) (* a a))", Object("define OK."));
 	TEST("(square 5)", Object(25));
 	TEST("(square 6.24)", Object(6.24 * 6.24));
-	
+
 	TEST("(define sq (lambda (x) (* x x)))", Object("define OK."));
 	TEST("(sq 5)", Object(25));
 	TEST("(sq 6.24)", Object(6.24 * 6.24));
@@ -249,6 +258,5 @@ void run_test()
 
 	// test_file();
 
-	reset_evaluator();
 	return;
 }

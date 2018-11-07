@@ -14,7 +14,7 @@ using namespace std;
 
 /* Keywords of Scheme */
 static vector<string> keywords{
-	"define", "if", "set", "lambda", "begin", "let", "cond"
+	"define", "if", "set!", "lambda", "begin", "let", "cond"
 };
 
 using SubEnv = unordered_map<string, Object>;

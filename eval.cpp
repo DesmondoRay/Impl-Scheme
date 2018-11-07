@@ -3,15 +3,16 @@
 #include "eval.h"
 
 /* Declartion static environments */
-/* env[0]: global environment, env[n]: local environment, for example:
+/* env[0]: global environment, env[n]: static local environment, for example:
  * in the global environment: 
- * 1. "(define a 3)" --> env[0]["a"] = 3, "a" is defined in the
+ * 1. "(define a 3)" --> envs[0]["a"] = 3, "a" is defined in the
  *	  global environment;
  * 2. "(define (func a b)
  *	     (define c 4)
- *       (+ a b c))"
- *    --> env[0]["func"] = <...compound procedure>, env[1]["c"] = 4,
- *    "c" is defined in the local environment.
+ *       (+ a b c))"6
+ *    --> envs[0]["func"] = <compound procedure: func>, envs[1]["c"] = 4,
+ *    "c" is defined in the static local environment.
+ * 3. when apply_proc() return, remove static local environment from envs.
  */
 static Environment envs;
 
@@ -27,7 +28,9 @@ void initialize_environment()
 	envs[0]["/"] = Object(Procedure(Primitive::div, "/"));
 	envs[0]["remainder"] = Object(Procedure(Primitive::remainder, "remainder"));
 	envs[0]["<"] = Object(Procedure(Primitive::less, "<"));
+	envs[0]["<="] = Object(Procedure(Primitive::lessEqual, "<="));
 	envs[0][">"] = Object(Procedure(Primitive::greater, ">"));
+	envs[0][">="] = Object(Procedure(Primitive::greaterEqual, ">="));
 	/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
 	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
 	envs[0]["="] = Object(Procedure(Primitive::op_equal, "="));
@@ -246,12 +249,12 @@ Object eval(string& str)
 	}
 }
 
-/* Add new_env(local environment) to envs */
+/* Add new_env(static environment of proc) to envs */
 static inline void expand_env(unordered_map<string, Object>& new_env) {
 	envs.push_back(new_env);
 }
 
-/* Remove a local environment from envs */
+/* Remove a environment from envs */
 static inline void remove_env(void) {
 	if (envs.size() > 1)
 		envs.pop_back();
@@ -285,15 +288,23 @@ Object apply_proc(Object &op, vector<Object>& obs)
 			error_handler(error_msg);
 		}
 
-		/* Make a new environment to evaluate compound procedure */
-		SubEnv new_env;
+		/* Get static environment of proc */
+		SubEnv proc_env = proc->get_env();
 		for (int i = 0; i < parameters.size(); i++) {
-			new_env[parameters[i]] = obs[i]; /* Bind arguments to parameters */
+			proc_env[parameters[i]] = obs[i]; /* Bind arguments to parameters */
 		}
 
-		expand_env(new_env);
+		expand_env(proc_env);
 		/* Evaluating in a expanded environment */
 		Object result = eval(proc->get_body());	
+#if 1
+		/* Update static environment of proc */
+		proc_env = proc->get_env();
+		for (auto &pair : proc_env) {
+			proc->set_env(pair.first, envs.back()[pair.first]);
+		}
+#endif
+		/* Remove static environment of proc from envs */
 		remove_env();
 
 		return result;
@@ -394,8 +405,22 @@ Object eval_lambda(vector<string>& exp, const string& proc_name)
 	body.insert(body.begin() + 2, exp.begin() + i + 1, exp.end());
 
 	/* Construct a compound procedure */
-	Procedure proc(parameters, body, proc_name);
-	return Object(proc);
+	/* Note!!!: the following part is kind of weird, you can read SICP chapter 
+	 * 3.1 on page 152(Chinese version) or 300(English version) if you want.
+	 * To store the values of local variables, the evaluator will establish an 
+	 * environment that holds these values, and store it at
+	 * class Procedure::static_env.
+	 * This implementation is not good, but it does work, 
+	 * using shared_ptr might be a better choice.
+	 */
+#if 1
+	if (envs.size() == 1)
+		return Object(Procedure(parameters, body, proc_name));
+	else
+		return Object(Procedure(parameters, body, proc_name, envs.back()));
+#else
+	return Object(Procedure(parameters, body, proc_name));
+#endif
 }
 
 /* Return true if object is some kinds of "true",
@@ -562,5 +587,20 @@ Object eval_cond(vector<string>& exp)
  */
 Object eval_set(vector<string>& exp)
 {
-	return Object();
+	if (exp.empty()) {
+		error_handler("ERROR(scheme): ill-formed special form -- set!");
+	}
+	if (exp[0] == "(") {
+		error_handler("ERROR(scheme): variable required, usage: " 
+			"(set! var value) -- set!");
+	}
+	string variable = get_single(exp);
+
+	Object ret = eval(exp);
+#if 1
+	Environment::iterator curr_env = envs.end() - 1;
+	(*curr_env)[variable] = ret;
+#endif
+
+	return ret;
 }
