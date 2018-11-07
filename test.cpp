@@ -97,6 +97,12 @@ static void test_primitive_1()
 	TEST("(remainder 20 3)", Object(20 % 3));
 	TEST("(remainder 4 7)", Object(4 % 7));
 	TEST("(remainder -14 7)", Object(-14 % 7));
+
+	TEST("(abs 0)", Object(0));
+	TEST("(abs 1.2)", Object(1.2));
+	TEST("(abs -7)", Object(7));
+	TEST("(abs -0)", Object(0));
+	TEST("(abs (- 1 2))", Object(1));
 }
 
 /* Test <, >, =/eq?/equal? */

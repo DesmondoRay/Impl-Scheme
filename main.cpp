@@ -11,6 +11,7 @@ using namespace std;
 #include "io_function.h"
 #include "eval.h"
 
+/* test.cpp */
 void run_test();
 void load_code(const string& code);
 
@@ -20,23 +21,11 @@ int main(int argc, char **argv)
 
 #if 1
 	run_test();
+#endif
 
-	string code1("\
-(define (make-withdraw balance)\
-  (lambda (amount)\
-    (if (>= balance amount)\
-		(begin (set! balance (- balance amount))\
-			   balance)\
-		\"Insufficient funds\")))\
-\n");
-	string code2("(define w1 (make-withdraw 100))\n");
-	string code3("(define w2 (make-withdraw 200))\n");
+	/* Preheating evaluator */
 	load_code(string("(define (f) (+ 1 2))\n"));
 	load_code(string("(f)\n"));
-	load_code(code1);
-	load_code(code2);
-	load_code(code3);
-#endif
 
 	if (argc == 1)
 		run_evaluator(std::cin);

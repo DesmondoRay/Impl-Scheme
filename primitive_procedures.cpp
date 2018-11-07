@@ -141,6 +141,18 @@ Object Primitive::remainder(vector<Object>& obs)
 	return Object(obs[0].get_integer() % obs[1].get_integer());
 }
 
+/* Return absolute value */
+Object Primitive::abs(vector<Object>& obs)
+{
+	if (obs.empty() || obs.size() > 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- abs");
+	if (is_true(less(vector<Object>{ obs[0], Object(0) })))
+		return sub(vector<Object>{ Object(0), obs[0] });
+	else
+		return obs[0];
+}
+
+
 /* Return the true if obs[0] < obs[1] < obs[2] < ... < obs[n] */
 Object Primitive::less(vector<Object>& obs)
 {

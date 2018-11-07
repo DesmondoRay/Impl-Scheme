@@ -29,6 +29,9 @@ namespace Primitive {
 	Object div(vector<Object>& obs);
 	/* Return remainder, it takes two arguments */
 	Object remainder(vector<Object>& obs);
+	/* Return absolute value */
+	Object abs(vector<Object>& obs);
+	/*  */
 
 /* Return true or false as an Object, all obs must be number */
 	/* Return true if obs[0] < obs[1] < obs[2] < ... < obs[n] */

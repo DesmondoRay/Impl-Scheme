@@ -31,6 +31,7 @@ void initialize_environment()
 	envs[0]["<="] = Object(Procedure(Primitive::lessEqual, "<="));
 	envs[0][">"] = Object(Procedure(Primitive::greater, ">"));
 	envs[0][">="] = Object(Procedure(Primitive::greaterEqual, ">="));
+	envs[0]["abs"] = Object(Procedure(Primitive::abs, "abs"));
 	/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
 	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
 	envs[0]["="] = Object(Procedure(Primitive::op_equal, "="));
