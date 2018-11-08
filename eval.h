@@ -30,8 +30,9 @@ void reset_evaluator();
 void error_handler(const string& s);
 
 /* Evaluator start. */
-/* mode == 0: print prompt, such as ">>> Eval input: " and ">>> Eval value: ";
- * mode == 1: don't print prompt, used to evaluate code from file.
+/* mode == 0: print prompt and value, such as ">>> Eval value: a";
+ * mode == 1: don't print prompt and value, used to evaluate code from file.
+ * mode == 2: don't print prompt, but print value.
  */
 void run_evaluator(istream &in, int mode = 0);
 

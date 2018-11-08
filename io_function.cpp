@@ -7,9 +7,11 @@
 void print_result(const Object& ob, int mode)
 {
 	if (mode == 0)
-		cout << ">>> Eval value: " << endl;
-	Primitive::display(vector<Object>{ob});
-	cout << endl;
+		cout << ">>> Eval value: ";
+	if (mode == 0 || mode == 2) {
+		Primitive::display(vector<Object>{ob});
+		cout << endl;
+	}
 }
 
 /* Read user input. */
@@ -20,8 +22,7 @@ string get_input(istream &in)
 	int cntParantheses = 0, cntQuotations = 0;
 	string stmp;
 	char ctmp;
-	while (in.good()) {
-		in.get(ctmp);
+	while (in.get(ctmp)) {
 		if (ctmp == ';') /* Ignore comment line. */
 			getline(in, stmp);
 		if (ctmp != '\n') {

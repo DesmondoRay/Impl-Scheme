@@ -2,8 +2,8 @@
 
 #include "eval.h"
 
-/* Declartion static environments */
-/* env[0]: global environment, env[n]: static local environment, for example:
+/* Declartion of static environments */
+/* envs[0]: global environment, envs[n]: static local environment, for example:
  * in the global environment: 
  * 1. "(define a 3)" --> envs[0]["a"] = 3, "a" is defined in the
  *	  global environment;
@@ -20,18 +20,27 @@ static Environment envs;
 void initialize_environment()
 {
 	envs.clear();
-	envs.push_back(unordered_map<string, Object>());
+	envs.push_back(SubEnv());
 
+	envs[0]["number?"] = Object(Procedure(Primitive::is_number, "number?"));
+	envs[0]["integer?"] = Object(Procedure(Primitive::is_integer, "integer?"));
+	envs[0]["boolean?"] = Object(Procedure(Primitive::is_boolean, "boolean?"));
+	envs[0]["real?"] = Object(Procedure(Primitive::is_real, "real?"));
+	envs[0]["even?"] = Object(Procedure(Primitive::is_even, "even?"));
+	envs[0]["odd?"] = Object(Procedure(Primitive::is_odd, "odd?"));
 	envs[0]["+"] = Object(Procedure(Primitive::add, "+"));
 	envs[0]["-"] = Object(Procedure(Primitive::sub, "-"));
 	envs[0]["*"] = Object(Procedure(Primitive::mul, "*"));
 	envs[0]["/"] = Object(Procedure(Primitive::div, "/"));
 	envs[0]["remainder"] = Object(Procedure(Primitive::remainder, "remainder"));
+	envs[0]["quotient"] = Object(Procedure(Primitive::quotient, "quotient"));
 	envs[0]["<"] = Object(Procedure(Primitive::less, "<"));
 	envs[0]["<="] = Object(Procedure(Primitive::lessEqual, "<="));
 	envs[0][">"] = Object(Procedure(Primitive::greater, ">"));
 	envs[0][">="] = Object(Procedure(Primitive::greaterEqual, ">="));
 	envs[0]["abs"] = Object(Procedure(Primitive::abs, "abs"));
+	envs[0]["square"] = Object(Procedure(Primitive::square, "square"));
+	envs[0]["sqrt"] = Object(Procedure(Primitive::sqrt, "sqrt"));
 	/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
 	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
 	envs[0]["="] = Object(Procedure(Primitive::op_equal, "="));
@@ -362,9 +371,11 @@ Object eval_define(vector<string>& exp)
 	 * or update a value of definition in current environment.
 	 */
 	Environment::iterator curr_env = envs.end() - 1;
+	string ret;
 	/* Define a procedure, convert to "lambda" expression */
 	if (exp[0] == "(") {
 		string proc_name = exp[1];
+		ret = proc_name;
 		/* delete procedure name, {(square x), (* x x)} --> {(x), (* x x)} */
 		exp.erase(exp.begin() + 1); 
 		(*curr_env)[proc_name] = eval_lambda(exp, proc_name);
@@ -374,13 +385,14 @@ Object eval_define(vector<string>& exp)
 	 */
 	else {
 		string variable = exp[0];
+		ret = variable;
 		(*curr_env)[variable] =
 			eval(vector<string>(exp.begin() + 1, exp.end()));
 	}
 #ifndef NDEBUG
 	cout << "DEBUG eval_define(): define OK " << endl;
 #endif
-	return Object("define OK.");
+	return Object(ret);
 }
 
 /* Handle with "lambda" expression, for example:
@@ -415,6 +427,7 @@ Object eval_lambda(vector<string>& exp, const string& proc_name)
 	 * using shared_ptr might be a better choice.
 	 */
 #if 1
+	/* No need to save global environment */
 	if (envs.size() == 1)
 		return Object(Procedure(parameters, body, proc_name));
 	else

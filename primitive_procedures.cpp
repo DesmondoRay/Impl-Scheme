@@ -18,6 +18,71 @@ Object Primitive::reset(vector<Object>& obs)
 	return Object();
 }
 
+/* Return #t(true) if object is a number */
+Object Primitive::is_number(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- number?");
+
+	bool ret = obs[0].get_type() == INTEGER || obs[0].get_type() == REAL;
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a boolean */
+Object Primitive::is_boolean(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- boolean?");
+
+	bool ret = obs[0].get_type() == BOOLEAN;
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a integer */
+Object Primitive::is_integer(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- integer?");
+
+	bool ret = obs[0].get_type() == INTEGER;
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a real */
+Object Primitive::is_real(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- real?");
+
+	bool ret = obs[0].get_type() == REAL;
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a even integer */
+Object Primitive::is_even(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- even?");
+	if (!is_true(is_integer(vector<Object>{obs[0]})))
+		error_handler("ERROR(scheme): passed a incorrect type to even?");
+
+	bool ret = obs[0].get_integer() % 2 == 0;
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a odd integer */
+Object Primitive::is_odd(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- odd?");
+	if (!is_true(is_integer(vector<Object>{obs[0]})))
+		error_handler("ERROR(scheme): passed a incorrect type to odd?");
+
+	bool ret = (obs[0].get_integer() % 2 == 1 || 
+		obs[0].get_integer() % 2 == -1);
+	return Object(ret);
+}
+
 /* Return the sum of obs. */
 Object Primitive::add(vector<Object>& obs)
 {
@@ -126,9 +191,10 @@ Object Primitive::div(vector<Object>& obs)
 /* Return remainder */
 Object Primitive::remainder(vector<Object>& obs) 
 {
-	if (obs.size() < 2) {
-		error_handler("ERROR(scheme): remainder takes at least two arguments");
+	if (obs.size() != 2) {
+		error_handler("ERROR(scheme): requires exactly 2 arguments -- remainder");
 	}
+
 	if (obs[0].get_type() != INTEGER || obs[1].get_type() != INTEGER) {
 		string wrong_type = (obs[0].get_type() == INTEGER ?
 			obs[1].get_type_str() : obs[0].get_type_str());
@@ -141,16 +207,63 @@ Object Primitive::remainder(vector<Object>& obs)
 	return Object(obs[0].get_integer() % obs[1].get_integer());
 }
 
+/* Return quotient */
+Object Primitive::quotient(vector<Object>& obs)
+{
+	if (obs.size() != 2) {
+		error_handler("ERROR(scheme): requires exactly 2 arguments -- quotient");
+	}
+	if (!is_true(is_integer(vector<Object>{obs[0]})) ||
+		!is_true(is_integer(vector<Object>{obs[1]})))
+		error_handler("ERROR(scheme): passed a incorrect type to quotient");
+
+	int ret = obs[0].get_integer() / obs[1].get_integer();
+	return Object(ret);
+}
+
 /* Return absolute value */
 Object Primitive::abs(vector<Object>& obs)
 {
-	if (obs.empty() || obs.size() > 1)
-		error_handler("ERROR(schem): requires exactly 1 argument -- abs");
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- abs");
+	if (!is_true(is_number(vector<Object>{obs[0]})))
+		error_handler("ERROR(scheme): passed a incorrect type to abs");
+
 	if (is_true(less(vector<Object>{ obs[0], Object(0) })))
 		return sub(vector<Object>{ Object(0), obs[0] });
 	else
 		return obs[0];
 }
+
+/* Return the square of object */
+Object Primitive::square(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- square");
+	if (!is_true(is_number(vector<Object>{obs[0]})))
+		error_handler("ERROR(scheme): passed a incorrect type to square");
+
+	return mul(vector<Object>{obs[0], obs[0]});
+}
+
+/* Return the sqrt of object */
+Object Primitive::sqrt(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- sqrt");
+	if (!is_true(is_number(vector<Object>{obs[0]})))
+		error_handler("ERROR(scheme): passed a incorrect type to sqrt");
+
+	double tmp = (obs[0].get_type() == INTEGER ? 
+		static_cast<double>(obs[0].get_integer()) : obs[0].get_real());
+
+	if (tmp < 0)
+		error_handler("ERROR(scheme): the evaluator does not support calling "
+			"sqrt on negative numbers.");
+
+	return Object(std::sqrt(tmp));
+}
+
 
 
 /* Return the true if obs[0] < obs[1] < obs[2] < ... < obs[n] */
@@ -255,7 +368,7 @@ Object Primitive::display(vector<Object>& obs)
 		string proc_name;		/* Used to display procedure */
 		switch (type) {
 		case UNASSIGNED:
-			cerr << "null ";
+			cerr << "*Unspecified return value*";
 			break;
 		case INTEGER:
 			cout << ob.get_integer() << " ";
@@ -326,7 +439,12 @@ Object Primitive::load(vector<Object>& obs)
 			obs[0].get_string());
 	}
 
+	cout << ">>> Loading " << filename.substr(1, filename.size() - 2) << endl;
+#ifdef NDEBUG
 	run_evaluator(ifile, 1);
-	error_handler("Loading done!");
+#else
+	run_evaluator(ifile, 2);
+#endif
+	cout << ">>> Loading completed!" << endl;
 	return Object();
 }

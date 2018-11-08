@@ -4,6 +4,7 @@
 #define PRIMITIVE_PROCEDURES_H_
 
 #include <fstream>
+#include <cmath>
 #include "object.h"
 
 #define NDEBUG
@@ -17,6 +18,24 @@ namespace Primitive {
 	/* Note: obs should/could be empty */
 	Object reset(vector<Object>& obs);
 
+	/* Return #t(true) if object is a number */
+	Object is_number(vector<Object>& obs);
+
+	/* Return #t(true) if object is a boolean */
+	Object is_boolean(vector<Object>& obs);
+
+	/* Return #t(true) if object is a integer */
+	Object is_integer(vector<Object>& obs);
+
+	/* Return #t(true) if object is a real */
+	Object is_real(vector<Object>& obs);
+
+	/* Return #t(true) if object is a even integer */
+	Object is_even(vector<Object>& obs);
+
+	/* Return #t(true) if object is a odd integer */
+	Object is_odd(vector<Object>& obs);
+
 /* Primitive operation, note: result's type could be INTEGER or REAL */
 	/* Return the sum of obs */
 	Object add(vector<Object>& obs);
@@ -25,13 +44,20 @@ namespace Primitive {
 	/* Return the product of obs */
 	Object mul(vector<Object>& obs);
 	/* Return the quotient of obs */
-	/* Note: always return real(double) */
+	/* Note: always return real(double), which is different from scheme */
 	Object div(vector<Object>& obs);
 	/* Return remainder, it takes two arguments */
 	Object remainder(vector<Object>& obs);
+	/* Return quotient */
+	Object quotient(vector<Object>& obs);
 	/* Return absolute value */
 	Object abs(vector<Object>& obs);
-	/*  */
+	/* Return the square of object */
+	Object square(vector<Object>& obs);
+	/* Return the sqrt of object */
+	Object sqrt(vector<Object>& obs);
+
+
 
 /* Return true or false as an Object, all obs must be number */
 	/* Return true if obs[0] < obs[1] < obs[2] < ... < obs[n] */

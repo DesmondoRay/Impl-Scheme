@@ -103,11 +103,61 @@ static void test_primitive_1()
 	TEST("(abs -7)", Object(7));
 	TEST("(abs -0)", Object(0));
 	TEST("(abs (- 1 2))", Object(1));
+
+	TEST("(square 2)", Object(4));
+	TEST("(square 1.245)", Object(1.245 * 1.245));
+	TEST("(square 0)", Object(0));
+	TEST("(square -8)", Object(64));
+
+	TEST("(sqrt 4)", Object(2.0));
+	TEST("(sqrt 5)", Object(sqrt(5.0)));
+	TEST("(sqrt 0)", Object(0.0));
+
+	TEST("(quotient 10 3)", Object(3));
+	TEST("(quotient 1 3)", Object(0));
+	TEST("(quotient 5 2)", Object(2));
 }
 
-/* Test <, >, =/eq?/equal? */
+/* Test primitive procedures */
 static void test_primitive_2()
 {
+	TEST("(number? 0)", Object(true));
+	TEST("(number? 1.234)", Object(true));
+	TEST("(number? -786)", Object(true));
+	TEST("(number? \"abc\")", Object(false));
+	TEST("(number? #t)", Object(false));
+
+	TEST("(boolean? #t)", Object(true));
+	TEST("(boolean? #f)", Object(true));
+	TEST("(boolean? (< 1 3))", Object(true));
+	TEST("(boolean? (eq? 2 3))", Object(true));
+	TEST("(boolean? 1)", Object(false));
+	TEST("(boolean? \"#f\")", Object(false));
+
+
+
+	TEST("(integer? 1345)", Object(true));
+	TEST("(integer? -1345)", Object(true));
+	TEST("(integer? 34.2)", Object(false));
+	TEST("(integer? \"abc\")", Object(false));
+	TEST("(integer? #t)", Object(false));
+
+	TEST("(real? 1345)", Object(false));
+	TEST("(real? -1345.0)", Object(true));
+	TEST("(real? 34.2)", Object(true));
+	TEST("(real? \"abc\")", Object(false));
+	TEST("(real? #t)", Object(false));
+
+	TEST("(even? 0)", Object(true));
+	TEST("(even? 13)", Object(false));
+	TEST("(even? 266)", Object(true));
+	TEST("(even? -266)", Object(true));
+
+	TEST("(odd? 0)", Object(false));
+	TEST("(odd? 13)", Object(true));
+	TEST("(odd? 266)", Object(false));
+	TEST("(odd? -267)", Object(true));
+
 	TEST("(< 1 2)", Object(1 < 2));
 	TEST("(< -1 -2)", Object(-1 < -2));
 	TEST("(< 1.2 3.2)", Object(1.2 < 3.2));
@@ -158,24 +208,24 @@ static void test_primitive_2()
 /* Test define expression */
 static void test_define()
 {
-	TEST("(define n 5)", Object("define OK."));
+	TEST("(define n 5)", Object("n"));
 	TEST("(+ n 6)", Object(11));
 	TEST("(* 4.0 n)", Object(4.0 * 5));
 	/* update n */
-	TEST("(define n 100)", Object("define OK."));
+	TEST("(define n 100)", Object("n"));
 	TEST("(+ n 6)", Object(106));
 	TEST("(* 4.0 n)", Object(4.0 * 100));
 
-	TEST("(define (square a) (* a a))", Object("define OK."));
+	TEST("(define (square a) (* a a))", Object("square"));
 	TEST("(square 5)", Object(25));
 	TEST("(square 6.24)", Object(6.24 * 6.24));
 
-	TEST("(define sq (lambda (x) (* x x)))", Object("define OK."));
+	TEST("(define sq (lambda (x) (* x x)))", Object("sq"));
 	TEST("(sq 5)", Object(25));
 	TEST("(sq 6.24)", Object(6.24 * 6.24));
 
 	TEST("(define (fact n) (if (< n 2) 1 (* n (fact (- n 1)))))", 
-		Object("define OK."));
+		Object("fact"));
 	TEST("(fact 0)", Object(1));
 	TEST("(fact 1)", Object(1));
 	TEST("(fact 2)", Object(2));
@@ -184,7 +234,7 @@ static void test_define()
 	TEST("(fact 10)", Object(3628800));
 
 	TEST("(define (fib n) (if (< n 3) 1 (+ (fib (- n 1)) (fib (- n 2)))))", 
-		Object("define OK."));
+		Object("fib"));
 	TEST("(fib 1)", Object(1));
 	TEST("(fib 2)", Object(1));
 	TEST("(fib 3)", Object(2));
@@ -208,7 +258,7 @@ static void test_begin()
   (+ a b)\
   (define c 5))"; /* Return the last subexpression as the result */
 	load_code(code);
-	TEST("(f2 2 3)", Object("define OK.")); 
+	TEST("(f2 2 3)", Object("c")); 
 
 	TEST("\
 (begin (define c1 (cons 1 2))\n\
@@ -286,9 +336,11 @@ static void test_set()
 }
 
 /* Test evaluate code from file */
-static void test_file()
+static void test_load_file(const string& filename)
 {
-	istringstream iss("(load \"F:/Git/Learning/impl_scheme/test/test1.scm\")\n");
+	string code("(load \"");
+	code += filename + "\")\n";
+	istringstream iss(code);
 	string input = get_input(iss);
 	vector<string> split = split_input(input);
 	Object result = eval(split);
@@ -305,10 +357,10 @@ void run_test()
 	test_let();
 	test_cond();
 	test_set();
-	
-	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
-	// test_file();
+	test_load_file("F:/Git/Learning/impl_scheme/test_file/test1.scm");
+
+	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
 	return;
 }
