@@ -36,6 +36,16 @@ namespace Primitive {
 	/* Return #t(true) if object is a odd integer */
 	Object is_odd(vector<Object>& obs);
 
+	/* Return #t(true) if object is a pair(or list) */
+	Object is_pair(vector<Object>& obs);
+
+	/* Return #t(true) if object is a empty list */
+	Object is_null(vector<Object>& obs);
+
+	/* Return #t(true) if object is a list */
+	Object is_list(vector<Object>& obs);
+
+
 /* Primitive operation, note: result's type could be INTEGER or REAL */
 	/* Return the sum of obs */
 	Object add(vector<Object>& obs);
@@ -72,9 +82,12 @@ namespace Primitive {
 	/* Return true if obs[0] >= obs[1] >= obs[2] >= ... >= obs[n] */
 	Object greaterEqual(vector<Object>& obs);
 
-/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
+	/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
 	/* arguments could be all types */
 	Object equal(vector<Object>& obs);
+
+	/* Operator! */
+	Object not(vector<Object>& obs);
 
 	/* Return the pair of obs as an Object */
 	/* Note: obs.size() must be 2 */

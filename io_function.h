@@ -20,4 +20,7 @@ string get_input(istream &in);
 /* Split input string and store them in a vector<string>. */
 vector<string> split_input(string& input);
 
+/* Convert '(<exp1> ... <expn>) too (list <exp1> ... <expn>) */
+void convert_to_list(vector<string>& split);
+
 #endif

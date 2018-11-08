@@ -83,6 +83,36 @@ Object Primitive::is_odd(vector<Object>& obs)
 	return Object(ret);
 }
 
+/* Return #t(true) if object is a pair(or list) */
+Object Primitive::is_pair(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- pair?");
+	
+	bool ret = (obs[0].get_type() == CONS || obs[0].get_type() == LIST);
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a empty list */
+Object Primitive::is_null(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- null?");
+
+	bool ret = (obs[0].get_type() == LIST && obs[0].get_list()->empty());
+	return Object(ret);
+}
+
+/* Return #t(true) if object is a list */
+Object Primitive::is_list(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- list?");
+
+	bool ret = (obs[0].get_type() == LIST);
+	return Object(ret);
+}
+
 /* Return the sum of obs. */
 Object Primitive::add(vector<Object>& obs)
 {
@@ -341,6 +371,18 @@ Object Primitive::equal(vector<Object>& obs) {
 		result &= (obs[i] == obs[i + 1]);
 	}
 	return Object(result);
+}
+
+/* Operator! */
+Object Primitive::not(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(schem): requires exactly 1 argument -- not");
+
+	if (obs[0].get_type() == BOOLEAN && obs[0].get_boolean() == false)
+		return Object(true);
+	else
+		return Object(false);
 }
 
 /* Return the pair of obs as an Object */

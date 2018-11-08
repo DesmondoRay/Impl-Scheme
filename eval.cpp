@@ -28,6 +28,9 @@ void initialize_environment()
 	envs[0]["real?"] = Object(Procedure(Primitive::is_real, "real?"));
 	envs[0]["even?"] = Object(Procedure(Primitive::is_even, "even?"));
 	envs[0]["odd?"] = Object(Procedure(Primitive::is_odd, "odd?"));
+	envs[0]["pair?"] = Object(Procedure(Primitive::is_pair, "pair?"));
+	envs[0]["null?"] = Object(Procedure(Primitive::is_null, "null?"));
+	envs[0]["list?"] = Object(Procedure(Primitive::is_list, "list?"));
 	envs[0]["+"] = Object(Procedure(Primitive::add, "+"));
 	envs[0]["-"] = Object(Procedure(Primitive::sub, "-"));
 	envs[0]["*"] = Object(Procedure(Primitive::mul, "*"));
@@ -46,6 +49,7 @@ void initialize_environment()
 	envs[0]["="] = Object(Procedure(Primitive::op_equal, "="));
 	envs[0]["eq?"] = Object(Procedure(Primitive::equal, "eq?"));
 	envs[0]["equal?"] = Object(Procedure(Primitive::equal, "eq?"));
+	envs[0]["not"] = Object(Procedure(Primitive::not, "not?"));
 	envs[0]["quit"] = Object(Procedure(Primitive::quit, "quit"));
 	envs[0]["exit"] = Object(Procedure(Primitive::quit, "quit"));
 	envs[0]["reset"] = Object(Procedure(Primitive::reset, "reset"));
@@ -102,6 +106,9 @@ void run_evaluator(istream& in, int mode)
 			continue;
 
 		vector<string> split = split_input(input);
+		/* Convert '(<exp1> ... <expn>) too (list <exp1> ... <expn>) */
+		convert_to_list(split);
+
 		Object result = eval(split);
 		print_result(result, mode);
 	}
@@ -418,13 +425,13 @@ Object eval_lambda(vector<string>& exp, const string& proc_name)
 	body.insert(body.begin() + 2, exp.begin() + i + 1, exp.end());
 
 	/* Construct a compound procedure */
-	/* Note!!!: the following part is kind of weird, you can read SICP chapter 
-	 * 3.1 on page 152(Chinese version) or 300(English version) if you want.
-	 * To store the values of local variables, the evaluator will establish an 
-	 * environment that holds these values, and store it at
+	/* Note!!!: To store the values of local variables, the evaluator will 
+	 * establish an environment that holds these values, and store it at
 	 * class Procedure::static_env.
 	 * This implementation is not good, but it does work, 
 	 * using shared_ptr might be a better choice.
+	 * You can read SICP chapter 3.1 on page 152(Chinese version) or 
+	 * 300(English version) if you want.
 	 */
 #if 1
 	/* No need to save global environment */

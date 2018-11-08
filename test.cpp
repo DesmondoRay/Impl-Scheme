@@ -74,7 +74,7 @@ void load_code(const string& code)
 		else REPORT_ERROR(result, expect_result);\
 	} while(0)
 
-/* Test +, -, *, / */
+/* Test primitive procedures 1 */
 static void test_primitive_1()
 {
 	/* INT_MAX: 2147483647 INT_MIN : -2147483648 */
@@ -118,46 +118,9 @@ static void test_primitive_1()
 	TEST("(quotient 5 2)", Object(2));
 }
 
-/* Test primitive procedures */
+/* Test primitive procedures 2 */
 static void test_primitive_2()
 {
-	TEST("(number? 0)", Object(true));
-	TEST("(number? 1.234)", Object(true));
-	TEST("(number? -786)", Object(true));
-	TEST("(number? \"abc\")", Object(false));
-	TEST("(number? #t)", Object(false));
-
-	TEST("(boolean? #t)", Object(true));
-	TEST("(boolean? #f)", Object(true));
-	TEST("(boolean? (< 1 3))", Object(true));
-	TEST("(boolean? (eq? 2 3))", Object(true));
-	TEST("(boolean? 1)", Object(false));
-	TEST("(boolean? \"#f\")", Object(false));
-
-
-
-	TEST("(integer? 1345)", Object(true));
-	TEST("(integer? -1345)", Object(true));
-	TEST("(integer? 34.2)", Object(false));
-	TEST("(integer? \"abc\")", Object(false));
-	TEST("(integer? #t)", Object(false));
-
-	TEST("(real? 1345)", Object(false));
-	TEST("(real? -1345.0)", Object(true));
-	TEST("(real? 34.2)", Object(true));
-	TEST("(real? \"abc\")", Object(false));
-	TEST("(real? #t)", Object(false));
-
-	TEST("(even? 0)", Object(true));
-	TEST("(even? 13)", Object(false));
-	TEST("(even? 266)", Object(true));
-	TEST("(even? -266)", Object(true));
-
-	TEST("(odd? 0)", Object(false));
-	TEST("(odd? 13)", Object(true));
-	TEST("(odd? 266)", Object(false));
-	TEST("(odd? -267)", Object(true));
-
 	TEST("(< 1 2)", Object(1 < 2));
 	TEST("(< -1 -2)", Object(-1 < -2));
 	TEST("(< 1.2 3.2)", Object(1.2 < 3.2));
@@ -203,6 +166,64 @@ static void test_primitive_2()
 	/* Note: the following tests must run after test_define(); */
 	TEST("(eq? fact fact)", Object(true)); 
 	TEST("(eq? fact square)", Object(false));
+}
+
+/* Test primitive procedures 3 */
+static void test_primitive_3()
+{
+	TEST("(number? 0)", Object(true));
+	TEST("(number? 1.234)", Object(true));
+	TEST("(number? -786)", Object(true));
+	TEST("(number? \"abc\")", Object(false));
+	TEST("(number? #t)", Object(false));
+
+	TEST("(boolean? #t)", Object(true));
+	TEST("(boolean? #f)", Object(true));
+	TEST("(boolean? (< 1 3))", Object(true));
+	TEST("(boolean? (eq? 2 3))", Object(true));
+	TEST("(boolean? 1)", Object(false));
+	TEST("(boolean? \"#f\")", Object(false));
+
+	TEST("(integer? 1345)", Object(true));
+	TEST("(integer? -1345)", Object(true));
+	TEST("(integer? 34.2)", Object(false));
+	TEST("(integer? \"abc\")", Object(false));
+	TEST("(integer? #t)", Object(false));
+
+	TEST("(real? 1345)", Object(false));
+	TEST("(real? -1345.0)", Object(true));
+	TEST("(real? 34.2)", Object(true));
+	TEST("(real? \"abc\")", Object(false));
+	TEST("(real? #t)", Object(false));
+
+	TEST("(even? 0)", Object(true));
+	TEST("(even? 13)", Object(false));
+	TEST("(even? 266)", Object(true));
+	TEST("(even? -266)", Object(true));
+
+	TEST("(odd? 0)", Object(false));
+	TEST("(odd? 13)", Object(true));
+	TEST("(odd? 266)", Object(false));
+	TEST("(odd? -267)", Object(true));
+
+	TEST("(pair? (cons 1 2))", Object(true));
+	TEST("(pair? (list 1 2 3))", Object(true));
+	TEST("(pair? 12)", Object(false));
+
+	TEST("(null? (list 1 2))", Object(false));
+	TEST("(null? (list))", Object(true));
+	TEST("(null? (cons 1 2))", Object(false)); 
+	TEST("(null? 12)", Object(false));
+
+	TEST("(list? (list 1 2))", Object(true));
+	TEST("(null? (list))", Object(true));
+	TEST("(null? (cons 1 2))", Object(false));
+	TEST("(null? 12)", Object(false));
+
+	TEST("(not #t)", Object(false));
+	TEST("(not #f)", Object(true));
+	TEST("(not 1)", Object(false));
+	TEST("(not 0)", Object(false));
 }
 
 /* Test define expression */
@@ -352,6 +373,7 @@ void run_test()
 	test_primitive_1();
 	test_define();
 	test_primitive_2();
+	test_primitive_3();
 	test_begin();
 	test_lambda();
 	test_let();

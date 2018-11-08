@@ -82,3 +82,14 @@ vector<string> split_input(string& input)
 #endif
 	return split;
 }
+
+/* Convert '(<exp1> ... <expn>) too (list <exp1> ... <expn>) */
+void convert_to_list(vector<string>& split)
+{
+	for (int i = 0; i < split.size(); i++) {
+		if (split[i] == "'") {
+			split[i] = "list";
+			swap(split[i], split[i + 1]);
+		}
+	}
+}

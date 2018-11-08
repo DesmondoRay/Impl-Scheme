@@ -2,22 +2,22 @@
         (list 'append append)
 		(list 'eval eval)
 		
-		(list 'not not)
+(list 'not not)
 		
 		(list 'caar caar)
 		(list 'cadr cadr)
 		(list 'cdar cdar)
 		(list 'cddr cddr)
-		(list 'pair? pair?)
+(list 'pair? pair?)
 		
         (list 'for-each for-each)
 		(list 'length length)
 		(list 'list->string list->string)
 		(list 'list-ref list-ref)
         (list 'list-tail list-tail)
-        (list 'list? list?)
+(list 'list? list?)
 		(list 'map map)
-        (list 'null? null?)
+(list 'null? null?)
         
 		(list 'reverse reverse)
 		(list 'member member)
@@ -39,7 +39,7 @@
 		(list 'random random) --> (random 3), (random 1.0)
 (list 'quotient quotient) --> 10 / 3 = 3;
 		
-		(list 'zero? zero?)))
+															(list 'zero? zero?)))
 (list 'integer? integer?)
 (list 'real? real?)
 (list 'number? number?)
