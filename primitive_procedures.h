@@ -49,38 +49,57 @@ namespace Primitive {
 /* Primitive operation, note: result's type could be INTEGER or REAL */
 	/* Return the sum of obs */
 	Object add(vector<Object>& obs);
+
 	/* Return the difference of obs */
 	Object sub(vector<Object>& obs);
+
 	/* Return the product of obs */
 	Object mul(vector<Object>& obs);
+
 	/* Return the quotient of obs */
 	/* Note: always return real(double), which is different from scheme */
 	Object div(vector<Object>& obs);
+
 	/* Return remainder, it takes two arguments */
 	Object remainder(vector<Object>& obs);
+
 	/* Return quotient */
 	Object quotient(vector<Object>& obs);
+
 	/* Return absolute value */
 	Object abs(vector<Object>& obs);
+
 	/* Return the square of object */
 	Object square(vector<Object>& obs);
+
 	/* Return the sqrt of object */
 	Object sqrt(vector<Object>& obs);
-
 
 
 /* Return true or false as an Object, all obs must be number */
 	/* Return true if obs[0] < obs[1] < obs[2] < ... < obs[n] */
 	Object less(vector<Object>& obs);
+
 	/* Return true if obs[0] > obs[1] > obs[2] > ... > obs[n] */
 	Object greater(vector<Object>& obs);
+
 	/* Return true if obs[0] == obs[1] == obs[2] == ... == obs[n] */
 	/* arguments must be numbers */
 	Object op_equal(vector<Object>& obs);
+
 	/* Return true if obs[0] <= obs[1] <= obs[2] <= ... <= obs[n] */
 	Object lessEqual(vector<Object>& obs);
+
 	/* Return true if obs[0] >= obs[1] >= obs[2] >= ... >= obs[n] */
 	Object greaterEqual(vector<Object>& obs);
+
+
+	/* Return the minimum object of obs */
+	Object min(vector<Object>& obs);
+
+	/* Return the maximum object of obs */
+	Object max(vector<Object>& obs);
+
 
 	/* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
 	/* arguments could be all types */
@@ -105,6 +124,8 @@ namespace Primitive {
 	/* Load code from input file and evaluate */
 	/* Usage: (load "path/name.scm") */
 	Object load(vector<Object>& obs);
+
+
 };
 
 #endif

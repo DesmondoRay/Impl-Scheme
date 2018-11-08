@@ -1,51 +1,33 @@
-		(list 'apply apply)
+		
         (list 'append append)
-		(list 'eval eval)
-		
-(list 'not not)
-		
 		(list 'caar caar)
 		(list 'cadr cadr)
 		(list 'cdar cdar)
 		(list 'cddr cddr)
-(list 'pair? pair?)
-		
-        (list 'for-each for-each)
+		(list 'for-each for-each)
 		(list 'length length)
 		(list 'list->string list->string)
 		(list 'list-ref list-ref)
         (list 'list-tail list-tail)
-(list 'list? list?)
-		(list 'map map)
-(list 'null? null?)
-        
 		(list 'reverse reverse)
 		(list 'member member)
-        (list 'memq memq)
-        (list 'memv memv)
+		(list 'map map)
 		
+(list 'max max)
+(list 'min min)
+(list 'apply apply)
+(list 'not not)
+(list 'pair? pair?)
+(list 'list? list?)
+(list 'null? null?)
 (list 'boolean? boolean?)
-		
-		(list 'log log)
-		(list 'gcd gcd)
-		(list 'exp exp) --> e^n
-		(list 'asin asin)
 (list 'abs abs) 
-        (list 'acos acos)
-		(list 'cos cos)
-		(list 'sin sin)
 (list 'sqrt sqrt)
 (list 'square square)
-		(list 'random random) --> (random 3), (random 1.0)
 (list 'quotient quotient) --> 10 / 3 = 3;
-		
-															(list 'zero? zero?)))
 (list 'integer? integer?)
 (list 'real? real?)
 (list 'number? number?)
-		
 (list 'odd? odd?)
 (list 'even? even?)
-		(list 'expt expt) --> x^y
-		(list 'max max)
-		(list 'min min)
+		

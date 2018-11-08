@@ -157,6 +157,12 @@ static void test_primitive_2()
 	TEST("(eq? #t #t)", Object(true));
 	TEST("(eq? #t #f)", Object(false));
 
+	TEST("(min 1 2 3 4)", Object(1));
+	TEST("(max 1 2 3 4)", Object(4));
+	TEST("(min 13 1.2 42.1 0.3 2.3)", Object(0.3));
+	TEST("(max 13 1.2 42.1 0.3 2.3)", Object(42.1));
+	TEST("(max -13 -1.2 -42.1 -0.3 -2.3)", Object(-0.3));
+
 	/* Compare two primitive procedure */
 	TEST("(eq? + +)", Object(true));
 	TEST("(eq? + -)", Object(false));

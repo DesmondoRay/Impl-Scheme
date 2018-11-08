@@ -295,7 +295,6 @@ Object Primitive::sqrt(vector<Object>& obs)
 }
 
 
-
 /* Return the true if obs[0] < obs[1] < obs[2] < ... < obs[n] */
 Object Primitive::less(vector<Object>& obs)
 {
@@ -358,6 +357,37 @@ Object Primitive::lessEqual(vector<Object>& obs)
 			obs[i].operator_inner(obs[i + 1], "=="));
 	}
 	return Object(result);
+}
+
+
+/* Return the minimum object of obs */
+Object Primitive::min(vector<Object>& obs)
+{
+	if (obs.empty())
+		error_handler("ERROR(scheme): min requires at least 1 argument");
+
+	Object ret = obs[0];
+	for (int i = 0; i < obs.size(); i++) {
+		if (is_true(Primitive::greater(vector<Object>{ret, obs[i]})))
+			ret = obs[i];
+	}
+
+	return ret;
+}
+
+/* Return the maximum object of obs */
+Object Primitive::max(vector<Object>& obs)
+{
+	if (obs.empty())
+		error_handler("ERROR(scheme): min requires at least 1 argument");
+
+	Object ret = obs[0];
+	for (int i = 0; i < obs.size(); i++) {
+		if (is_true(Primitive::less(vector<Object>{ret, obs[i]})))
+			ret = obs[i];
+	}
+
+	return ret;
 }
 
 /* Return true if obs[0] equal obs[1] equal obs[2] equal .. equal obs[n]*/
@@ -490,3 +520,5 @@ Object Primitive::load(vector<Object>& obs)
 	cout << ">>> Loading completed!" << endl;
 	return Object();
 }
+
+

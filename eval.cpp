@@ -22,42 +22,49 @@ void initialize_environment()
 	envs.clear();
 	envs.push_back(SubEnv());
 
-	envs[0]["number?"] = Object(Procedure(Primitive::is_number, "number?"));
-	envs[0]["integer?"] = Object(Procedure(Primitive::is_integer, "integer?"));
-	envs[0]["boolean?"] = Object(Procedure(Primitive::is_boolean, "boolean?"));
-	envs[0]["real?"] = Object(Procedure(Primitive::is_real, "real?"));
-	envs[0]["even?"] = Object(Procedure(Primitive::is_even, "even?"));
-	envs[0]["odd?"] = Object(Procedure(Primitive::is_odd, "odd?"));
-	envs[0]["pair?"] = Object(Procedure(Primitive::is_pair, "pair?"));
-	envs[0]["null?"] = Object(Procedure(Primitive::is_null, "null?"));
-	envs[0]["list?"] = Object(Procedure(Primitive::is_list, "list?"));
-	envs[0]["+"] = Object(Procedure(Primitive::add, "+"));
-	envs[0]["-"] = Object(Procedure(Primitive::sub, "-"));
-	envs[0]["*"] = Object(Procedure(Primitive::mul, "*"));
-	envs[0]["/"] = Object(Procedure(Primitive::div, "/"));
-	envs[0]["remainder"] = Object(Procedure(Primitive::remainder, "remainder"));
-	envs[0]["quotient"] = Object(Procedure(Primitive::quotient, "quotient"));
-	envs[0]["<"] = Object(Procedure(Primitive::less, "<"));
-	envs[0]["<="] = Object(Procedure(Primitive::lessEqual, "<="));
-	envs[0][">"] = Object(Procedure(Primitive::greater, ">"));
-	envs[0][">="] = Object(Procedure(Primitive::greaterEqual, ">="));
-	envs[0]["abs"] = Object(Procedure(Primitive::abs, "abs"));
-	envs[0]["square"] = Object(Procedure(Primitive::square, "square"));
-	envs[0]["sqrt"] = Object(Procedure(Primitive::sqrt, "sqrt"));
-	/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
-	/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
-	envs[0]["="] = Object(Procedure(Primitive::op_equal, "="));
-	envs[0]["eq?"] = Object(Procedure(Primitive::equal, "eq?"));
-	envs[0]["equal?"] = Object(Procedure(Primitive::equal, "eq?"));
-	envs[0]["not"] = Object(Procedure(Primitive::not, "not?"));
-	envs[0]["quit"] = Object(Procedure(Primitive::quit, "quit"));
-	envs[0]["exit"] = Object(Procedure(Primitive::quit, "quit"));
-	envs[0]["reset"] = Object(Procedure(Primitive::reset, "reset"));
-	envs[0]["cons"] = Object(Procedure(Primitive::make_cons, "cons"));
-	envs[0]["list"] = Object(Procedure(Primitive::make_list, "list"));
-	envs[0]["display"] = Object(Procedure(Primitive::display, "display"));
-	envs[0]["newline"] = Object(Procedure(Primitive::newline, "newline"));
-	envs[0]["load"] = Object(Procedure(Primitive::load, "load"));
+	static vector <pair<string, Object(*)(vector<Object>&)>> procs{
+		make_pair("number?", Primitive::is_number),
+		make_pair("integer?", Primitive::is_integer),
+		make_pair("boolean?", Primitive::is_boolean),
+		make_pair("real?", Primitive::is_real),
+		make_pair("even?", Primitive::is_even),
+		make_pair("odd?", Primitive::is_odd),
+		make_pair("pair?", Primitive::is_pair),
+		make_pair("null?", Primitive::is_null),
+		make_pair("list?", Primitive::is_list),
+		make_pair("+", Primitive::add),
+		make_pair("-", Primitive::sub),
+		make_pair("*", Primitive::mul),
+		make_pair("/", Primitive::div),
+		make_pair("remainder", Primitive::remainder),
+		make_pair("quotient", Primitive::quotient),
+		make_pair("<", Primitive::less),
+		make_pair("<=", Primitive::lessEqual),
+		make_pair(">", Primitive::greater),
+		make_pair(">=", Primitive::greaterEqual),
+		make_pair("abs", Primitive::abs),
+		make_pair("square", Primitive::square),
+		make_pair("sqrt", Primitive::sqrt),
+		/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
+		/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
+		make_pair("=", Primitive::op_equal),
+		make_pair("eq?", Primitive::equal),
+		make_pair("equal?", Primitive::equal),
+		make_pair("min", Primitive::min),
+		make_pair("max", Primitive::max),
+		make_pair("not", Primitive::not),
+		make_pair("quit", Primitive::quit),
+		make_pair("exit", Primitive::quit),
+		make_pair("reset", Primitive::reset),
+		make_pair("cons", Primitive::make_cons),
+		make_pair("list", Primitive::make_list),
+		make_pair("display", Primitive::display),
+		make_pair("newline", Primitive::newline),
+		make_pair("load", Primitive::load),
+	};
+
+	for (auto &proc : procs)
+		envs[0][proc.first] = Object(Procedure(proc.second, proc.first));
 }
 
 /* Reset environment, restart evaluator then */
