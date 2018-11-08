@@ -106,9 +106,6 @@ void run_evaluator(istream& in, int mode)
 			continue;
 
 		vector<string> split = split_input(input);
-		/* Convert '(<exp1> ... <expn>) too (list <exp1> ... <expn>) */
-		convert_to_list(split);
-
 		Object result = eval(split);
 		print_result(result, mode);
 	}

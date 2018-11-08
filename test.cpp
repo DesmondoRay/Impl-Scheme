@@ -66,11 +66,9 @@ void load_code(const string& code)
 	do {\
 		test_cnts++;\
 		string copy(code);\
-		copy.push_back('\n');\
-		istringstream iss(copy);\
+		istringstream iss(copy + "\n");\
 		Object result = eval(split_input(get_input(iss)));\
-		if (expect_result == result)\
-			test_pass++;\
+		if (expect_result == result) test_pass++;\
 		else REPORT_ERROR(result, expect_result);\
 	} while(0)
 
@@ -208,10 +206,12 @@ static void test_primitive_3()
 
 	TEST("(pair? (cons 1 2))", Object(true));
 	TEST("(pair? (list 1 2 3))", Object(true));
+	TEST("(pair? '(4 5 6))", Object(true));
 	TEST("(pair? 12)", Object(false));
 
 	TEST("(null? (list 1 2))", Object(false));
 	TEST("(null? (list))", Object(true));
+	TEST("(null? '())", Object(true)); /* '(): empty list */
 	TEST("(null? (cons 1 2))", Object(false)); 
 	TEST("(null? 12)", Object(false));
 

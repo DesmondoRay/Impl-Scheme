@@ -58,6 +58,17 @@ string get_input(istream &in)
 	return result;
 }
 
+/* Convert '(<exp1> ... <expn>) too (list <exp1> ... <expn>) */
+static void convert_to_list(vector<string>& split)
+{
+	for (int i = 0; i < split.size(); i++) {
+		if (split[i] == "'") {
+			split[i] = "list";
+			swap(split[i], split[i + 1]);
+		}
+	}
+}
+
 /* Split input string and store them in a vector<string>. */
 vector<string> split_input(string& input)
 {
@@ -80,16 +91,7 @@ vector<string> split_input(string& input)
 		cout << s << ", ";
 	cout << endl;
 #endif
+	convert_to_list(split);
 	return split;
 }
 
-/* Convert '(<exp1> ... <expn>) too (list <exp1> ... <expn>) */
-void convert_to_list(vector<string>& split)
-{
-	for (int i = 0; i < split.size(); i++) {
-		if (split[i] == "'") {
-			split[i] = "list";
-			swap(split[i], split[i + 1]);
-		}
-	}
-}
