@@ -108,13 +108,6 @@ namespace Primitive {
 	/* Operator! */
 	Object not(vector<Object>& obs);
 
-	/* Return the pair of obs as an Object */
-	/* Note: obs.size() must be 2 */
-	Object make_cons(vector<Object>& obs);
-
-	/* Return the list of obs as an Object */
-	Object make_list(vector<Object>& obs);
-
 	/* Print obs */
 	Object display(vector<Object>& obs);
 
@@ -126,6 +119,36 @@ namespace Primitive {
 	Object load(vector<Object>& obs);
 
 
+	/* Return the pair of obs as an Object */
+	/* Note: obs.size() must be 2 */
+	Object make_cons(vector<Object>& obs);
+
+	/* Return the list of obs as an Object */
+	Object make_list(vector<Object>& obs);
+
+	/* Return the car of object */
+	Object car(vector<Object>& obs);
+
+	/* Return the cdr of object */
+	Object cdr(vector<Object>& obs);
+
+	/* Return the caar of object */
+	Object caar(vector<Object>& obs);
+
+	/* Return the cadr of object */
+	Object cadr(vector<Object>& obs);
+
+	/* Return the cdar of object */
+	Object cdar(vector<Object>& obs);
+
+	/* Return the cddr of object */
+	Object cddr(vector<Object>& obs);
+
+	/* Append an object or a list to obs[0] */
+	Object append(vector<Object>& obs);
+
+	/* Return length of obs[0] */
+	Object length(vector<Object>& obs);
 };
 
 #endif

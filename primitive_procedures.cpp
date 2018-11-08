@@ -407,7 +407,7 @@ Object Primitive::equal(vector<Object>& obs) {
 Object Primitive::not(vector<Object>& obs)
 {
 	if (obs.size() != 1)
-		error_handler("ERROR(schem): requires exactly 1 argument -- not");
+		error_handler("ERROR(scheme): requires exactly 1 argument -- not");
 
 	if (obs[0].get_type() == BOOLEAN && obs[0].get_boolean() == false)
 		return Object(true);
@@ -458,9 +458,9 @@ Object Primitive::display(vector<Object>& obs)
 			proc_type = ob.get_proc()->get_type();
 			proc_name = ob.get_proc()->get_proc_name();
 			if (proc_type == PRIMITIVE)
-				cout << "<primitive procedure: " << proc_name << ">" << endl;
+				cout << "<primitive procedure: " << proc_name << ">";
 			else if (proc_type == COMPOUND)
-				cout << "<compound procedure: " << proc_name << ">" << endl;
+				cout << "<compound procedure: " << proc_name << ">";
 			else
 				error_handler("ERROR(scheme): unknown procedure -- display");
 			break;
@@ -511,14 +511,136 @@ Object Primitive::load(vector<Object>& obs)
 			obs[0].get_string());
 	}
 
-	cout << ">>> Loading " << filename.substr(1, filename.size() - 2) << endl;
+	static int tab = 0; /* Used to print loading information. */
+
+	if (tab == 0) cout << ">>> ";
+	cout << string((tab++) * 4, ' ') << "Loading " 
+		 << filename.substr(1, filename.size() - 2) << endl;
+
 #ifdef NDEBUG
 	run_evaluator(ifile, 1);
 #else
 	run_evaluator(ifile, 2);
 #endif
-	cout << ">>> Loading completed!" << endl;
+
+	if (--tab == 0)
+		cout << ">>> Loading completed!" << endl << endl;
 	return Object();
 }
 
 
+/* Return the car of object */
+Object Primitive::car(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- car");
+	if (obs[0].get_type() != CONS && obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an incorrect type to car");
+	if (is_true(is_null(vector<Object>{ obs[0] })))
+		error_handler("ERROR(scheme): passed an empty list to car");
+
+	if (obs[0].get_type() == CONS)
+		return obs[0].get_cons()->car();
+	else
+		return obs[0].get_list()->car();
+}
+
+/* Return the cdr of object */
+Object Primitive::cdr(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- cdr");
+	if (obs[0].get_type() != CONS && obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an incorrect type to cdr");
+	if (is_true(is_null(vector<Object>{ obs[0] })))
+		error_handler("ERROR(scheme): passed an empty list to cdr");
+
+	if (obs[0].get_type() == CONS)
+		return obs[0].get_cons()->cdr();
+	else
+		return obs[0].get_list()->cdr();
+}
+
+/* Return the caar of object */
+Object Primitive::caar(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- caar");
+	if (obs[0].get_type() != CONS && obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an incorrect type to caar");
+	if (is_true(is_null(vector<Object>{ obs[0] })))
+		error_handler("ERROR(scheme): passed an empty list to caar");
+
+	return car(vector<Object>{ car(obs) });
+}
+
+/* Return the cadr of object */
+Object Primitive::cadr(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- cadr");
+	if (obs[0].get_type() != CONS && obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an incorrect type to cadr");
+	if (is_true(is_null(vector<Object>{ obs[0] })))
+		error_handler("ERROR(scheme): passed an empty list to cadr");
+
+	return car(vector<Object>{ cdr(obs) });
+}
+
+/* Return the cdar of object */
+Object Primitive::cdar(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- cdar");
+	if (obs[0].get_type() != CONS && obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an incorrect type to cdar");
+	if (is_true(is_null(vector<Object>{ obs[0] })))
+		error_handler("ERROR(scheme): passed an empty list to cdar");
+
+	return cdr(vector<Object>{ car(obs) });
+}
+
+/* Return the cddr of object */
+Object Primitive::cddr(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- cddr");
+	if (obs[0].get_type() != CONS && obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an incorrect type to cddr");
+	if (is_true(is_null(vector<Object>{ obs[0] })))
+		error_handler("ERROR(scheme): passed an empty list to cddr");
+
+	return cdr(vector<Object>{ cdr(obs) });
+}
+
+/* Append objects or lists to obs[0] */
+Object Primitive::append(vector<Object>& obs)
+{
+	if (obs.empty())
+		return Object(List());
+
+	vector<Object> new_list;
+	for (auto &ob : obs) {
+		if (ob.get_type() != LIST)
+			new_list.push_back(ob);
+		else {
+			for (auto &o : ob.get_list()->lst)
+				new_list.push_back(o);
+		}
+	}
+
+	return Object(List(new_list));
+}
+
+
+/* Return length of obs[0] */
+Object Primitive::length(vector<Object>& obs)
+{
+	if (obs.size() != 1)
+		error_handler("ERROR(scheme): requires exactly 1 argument -- length");
+	if (obs[0].get_type() != LIST)
+		error_handler("ERROR(scheme): passed an argument to length, "
+			"is not a list");
+
+	return Object(obs[0].get_list()->size());
+}

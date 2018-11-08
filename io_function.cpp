@@ -22,9 +22,26 @@ string get_input(istream &in)
 	int cntParantheses = 0, cntQuotations = 0;
 	string stmp;
 	char ctmp;
+	int in_quotes = 0;
 	while (in.get(ctmp)) {
-		if (ctmp == ';') /* Ignore comment line. */
-			getline(in, stmp);
+		if (ctmp == ';') {/* Ignore comment line. */
+			getline(in, stmp); 
+			continue;
+		}
+		if (in_quotes == 0 && ctmp == '|' && !result.empty() &&
+			result.back() == '#')
+		{
+			/* Ignore "#| ... |#" comment */
+			result.pop_back();
+			char prev = '\0';
+			while (in.get(ctmp)) {
+				if (ctmp != '#') continue;
+				else if (prev == '|') break;
+				prev = ctmp;
+			}
+			continue;
+		}
+
 		if (ctmp != '\n') {
 			/* Add a space at both sides of parentheses. */
 			if (ctmp == '(' || ctmp == ')') {
@@ -38,7 +55,10 @@ string get_input(istream &in)
 
 		if (ctmp == '(') cntParantheses++;
 		else if (ctmp == ')') cntParantheses--;
-		else if (ctmp == '"') cntQuotations++;
+		else if (ctmp == '"') {
+			cntQuotations++;
+			in_quotes = cntQuotations % 2;
+		}
 
 		/* At end of line, check if user's input is correct or complete. */
 		if (ctmp == '\n') {
@@ -94,4 +114,3 @@ vector<string> split_input(string& input)
 	convert_to_list(split);
 	return split;
 }
-

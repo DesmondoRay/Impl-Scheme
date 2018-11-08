@@ -177,7 +177,7 @@ private:
 class List {
 public:
 	/* Constructor */
-	List() = delete;
+	List() : lst(list<Object>()) {}
 	List(const vector<Object>& l) : lst(l.begin(), l.end()) {}
 	~List() {}
 

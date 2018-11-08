@@ -32,35 +32,48 @@ void initialize_environment()
 		make_pair("pair?", Primitive::is_pair),
 		make_pair("null?", Primitive::is_null),
 		make_pair("list?", Primitive::is_list),
+
 		make_pair("+", Primitive::add),
 		make_pair("-", Primitive::sub),
 		make_pair("*", Primitive::mul),
 		make_pair("/", Primitive::div),
 		make_pair("remainder", Primitive::remainder),
 		make_pair("quotient", Primitive::quotient),
+		make_pair("abs", Primitive::abs),
+		make_pair("square", Primitive::square),
+		make_pair("sqrt", Primitive::sqrt),
+		make_pair("not", Primitive::not),
+
 		make_pair("<", Primitive::less),
 		make_pair("<=", Primitive::lessEqual),
 		make_pair(">", Primitive::greater),
 		make_pair(">=", Primitive::greaterEqual),
-		make_pair("abs", Primitive::abs),
-		make_pair("square", Primitive::square),
-		make_pair("sqrt", Primitive::sqrt),
 		/* Note: = can take multiple arguments, "(= 1.0 1 1 1.0)" --> true */
 		/* eq? and equal? only takes two arguments, "(eq? 1.0 1)" --> false */
 		make_pair("=", Primitive::op_equal),
 		make_pair("eq?", Primitive::equal),
 		make_pair("equal?", Primitive::equal),
+
 		make_pair("min", Primitive::min),
 		make_pair("max", Primitive::max),
-		make_pair("not", Primitive::not),
+
 		make_pair("quit", Primitive::quit),
 		make_pair("exit", Primitive::quit),
 		make_pair("reset", Primitive::reset),
-		make_pair("cons", Primitive::make_cons),
-		make_pair("list", Primitive::make_list),
 		make_pair("display", Primitive::display),
 		make_pair("newline", Primitive::newline),
 		make_pair("load", Primitive::load),
+
+		make_pair("cons", Primitive::make_cons),
+		make_pair("list", Primitive::make_list),
+		make_pair("car", Primitive::car),
+		make_pair("cdr", Primitive::cdr),
+		make_pair("caar", Primitive::caar),
+		make_pair("cadr", Primitive::cadr),
+		make_pair("cdar", Primitive::cdar),
+		make_pair("cddr", Primitive::cddr),
+		make_pair("append", Primitive::append),
+		make_pair("length", Primitive::length),
 	};
 
 	for (auto &proc : procs)
@@ -160,12 +173,7 @@ Object eval(vector<string>& split)
 		is_proc = 1;
 		delete_ends_parentheses(split);
 	}
-	/* However, "quit" and "exit" are special cases, 
-	 * enter "quit" and "(quit)" will exit both.
-	 */
 	if (is_proc == 0 && split.size() == 1) {
-		if (split[0] == "quit" || split[0] == "exit")
-			Primitive::quit(vector<Object>{});
 		return eval(split[0]); /* Evaluate a variable */
 	}
 	else {
@@ -236,8 +244,10 @@ Object eval(string& str)
 	}
 	/* BOOLEAN, true: '#t', false: '#f' */
 	else if (str[0] == '#') {
-		bool val = (str[1] == 't' ? true : false);
-		return Object(val);
+		if (str[1] == 't')
+			return Object(true);
+		else if (str[1] == 'f')
+			return Object(false);
 	}
 	/* STRING */
 	else if (str[0] == '"') {

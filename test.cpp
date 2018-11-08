@@ -232,6 +232,24 @@ static void test_primitive_3()
 	TEST("(not 0)", Object(false));
 }
 
+/* Test cons(pair) and list */
+static void test_cons_list()
+{
+	load_code("(define a (cons 1 2))");
+	load_code("(define b (list 3 4 5))");
+	TEST("(car a)", Object(1));
+	TEST("(car b)", Object(3));
+	TEST("(cdr a)", Object(2));
+	TEST("(car (cdr b))", Object(4));
+	TEST("(length b)", Object(3));
+	
+	load_code("define c (cons (cons 1 2) (cons 3 4))");
+	TEST("(caar c)", Object(1));
+	TEST("(cdar c)", Object(2));
+	TEST("(cadr c)", Object(3));
+	TEST("(cddr c)", Object(4));
+}
+
 /* Test define expression */
 static void test_define()
 {
@@ -363,7 +381,7 @@ static void test_set()
 }
 
 /* Test evaluate code from file */
-static void test_load_file(const string& filename)
+static void load_file(const string& filename)
 {
 	string code("(load \"");
 	code += filename + "\")\n";
@@ -373,20 +391,31 @@ static void test_load_file(const string& filename)
 	Object result = eval(split);
 }
 
+/* Test load code from file */
+static void test_load_file()
+{
+	load_file("F:/Git/Learning/impl_scheme/test_file/test1.scm");
+	load_file("F:/Git/Learning/impl_scheme/test_file/test2.scm");
+	/* Nested loading, evaluator need to load test3_2.scm in test3_1.scm */
+	load_file("F:/Git/Learning/impl_scheme/test_file/test3_1.scm");
+}
+
 void run_test()
 {
+#if 1
 	test_io();
 	test_primitive_1();
 	test_define();
 	test_primitive_2();
 	test_primitive_3();
+	test_cons_list();
 	test_begin();
 	test_lambda();
 	test_let();
 	test_cond();
 	test_set();
-
-	test_load_file("F:/Git/Learning/impl_scheme/test_file/test1.scm");
+#endif
+	test_load_file();
 
 	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
 
