@@ -11,6 +11,8 @@
 #include <memory>
 using namespace std;
 
+// #define USE_LIST
+
 class Procedure;
 class Cons;
 class List;
@@ -18,7 +20,7 @@ class List;
 /* Types of data */
 enum { 
 	UNASSIGNED = 0, INTEGER, REAL, BOOLEAN, 
-	STRING, PROCEDURE, CONS, LIST, KEYWORD
+	STRING, PROCEDURE, CONS, NIL, /*LIST,*/ KEYWORD
 };
 
 /* Object save several kinds of data */
@@ -37,10 +39,11 @@ public:
 		type(PROCEDURE), proc(make_shared<Procedure>(p)) {}
 	explicit Object(const Cons& c) : 
 		type(CONS), cons(make_shared<Cons>(c)) {}
+#ifdef USE_LIST
 	explicit Object(const List& l) : 
 		type(LIST), lst(make_shared<List>(l)) {}
-	Object(const string& s, int t);
-
+#endif
+	Object(const string& s, int t) : type(t), str(s) {}
 
 	/* Operator and destructor */
 	Object& operator=(const Object& ob);
@@ -60,8 +63,9 @@ public:
 	string get_string() const { return str; }
 	shared_ptr<Procedure> get_proc() const { return proc; }
 	shared_ptr<Cons> get_cons() const { return cons; };
+#ifdef USE_LIST
 	shared_ptr<List> get_list() const { return lst; }
-
+#endif
 	/* Used to operator< and operator> */
 	bool operator_inner(const Object& ob, const string& op);
 	
@@ -76,7 +80,9 @@ private:
 	string					str;
 	shared_ptr<Procedure>	proc;
 	shared_ptr<Cons>		cons;
+#ifdef USE_LIST
 	shared_ptr<List>		lst;
+#endif
 };
 
 /* Types of procedure */
@@ -169,6 +175,9 @@ public:
 	/* Others */
 	Object car() const { return pir.first; }
 	Object cdr() const { return pir.second; }
+
+	void set_car(const Object& val) { pir.first = val; }
+	void set_cdr(const Object& val) { pir.second = val; }
 private:
 	pair<Object, Object> pir;
 };
@@ -183,10 +192,12 @@ public:
 
 	/* Others */
 	Object car() { return lst.front(); }
+#ifdef USE_LIST
 	Object cdr() {
 		auto it = lst.begin();
 		return Object(vector<Object>(++it, lst.end())); 
 	}
+#endif
 	bool empty() { return lst.empty(); }
 	int size() { return lst.size(); }
 

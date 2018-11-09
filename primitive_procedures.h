@@ -108,6 +108,13 @@ namespace Primitive {
 	/* Operator! */
 	Object not(vector<Object>& obs);
 
+	/* Operator| */
+	Object or (vector<Object>& obs);
+
+	/* Operator& */
+	Object and (vector<Object>& obs);
+
+
 	/* Print obs */
 	Object display(vector<Object>& obs);
 
@@ -149,6 +156,12 @@ namespace Primitive {
 
 	/* Return length of obs[0] */
 	Object length(vector<Object>& obs);
+
+	/* scheme: map */
+	Object map(vector<Object>& obs);
+
+	/* scheme: for-each */
+	Object for_each(vector<Object>& obs);
 };
 
 #endif

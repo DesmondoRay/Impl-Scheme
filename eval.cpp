@@ -2,6 +2,8 @@
 
 #include "eval.h"
 
+//#define SHOW_ERASE_INFO
+
 /* Declartion of static environments */
 /* envs[0]: global environment, envs[n]: static local environment, for example:
  * in the global environment: 
@@ -43,6 +45,8 @@ void initialize_environment()
 		make_pair("square", Primitive::square),
 		make_pair("sqrt", Primitive::sqrt),
 		make_pair("not", Primitive::not),
+		make_pair("or", Primitive:: or ),
+		make_pair("and", Primitive::and),
 
 		make_pair("<", Primitive::less),
 		make_pair("<=", Primitive::lessEqual),
@@ -74,10 +78,14 @@ void initialize_environment()
 		make_pair("cddr", Primitive::cddr),
 		make_pair("append", Primitive::append),
 		make_pair("length", Primitive::length),
+		make_pair("map", Primitive::map),
+		make_pair("for-each", Primitive::for_each),
+
 	};
 
 	for (auto &proc : procs)
 		envs[0][proc.first] = Object(Procedure(proc.second, proc.first));
+	envs[0]["nil"] = Object("nil");
 }
 
 /* Reset environment, restart evaluator then */
@@ -115,8 +123,12 @@ static inline void prompt()
 void run_evaluator(istream& in, int mode)
 {
 	/* Keep only the global environment */
-	if (envs.size() > 1)
-		envs.erase(envs.begin() + 1, envs.end()); 
+	if (envs.size() > 1) {
+#ifdef SHOW_ERASE_INFO
+		cout << "erase 1";
+#endif
+		envs.erase(envs.begin() + 1, envs.end());
+	}
 
 	while (in.good()) {
 		if (mode == 0) 
@@ -146,14 +158,22 @@ static vector<string> get_subexp(vector<string>& split)
 		split[i] == "(" ? cntParantheses++ : 1;
 	}
 	vector<string> result(split.begin(), split.begin() + i);
+#ifdef SHOW_ERASE_INFO
+	cout << "erase 2";
+#endif
 	split.erase(split.begin(), split.begin() + i);
+
 	return result;
 }
 /* Get a single variable */
 static string get_single(vector<string>& split)
 {
 	string result = split[0];
+#ifdef SHOW_ERASE_INFO
+	cout << "erase 3";
+#endif
 	split.erase(split.begin());
+
 	return result;
 }
 
@@ -221,9 +241,14 @@ void delete_ends_parentheses(vector<string>& split)
 {
 	if (split.empty())
 		return;
+
 	if (split[0] == "(") {
 		split.pop_back();
-		split.erase(split.begin());
+#ifdef SHOW_ERASE_INFO
+		cout << "erase 4";
+#endif
+		if (!split.empty())
+			split.erase(split.begin());
 	}
 }
 
@@ -315,7 +340,8 @@ Object apply_proc(Object &op, vector<Object>& obs)
 			error_msg.push_back(obs.size() + '0');
 			error_msg += " arguments, it requires exactly ";
 			error_msg.push_back(parameters.size() + '0');
-			error_msg += " arguments.";
+			error_msg += " arguments -- ";
+			error_msg += proc->get_proc_name();
 			error_handler(error_msg);
 		}
 
@@ -328,13 +354,13 @@ Object apply_proc(Object &op, vector<Object>& obs)
 		expand_env(proc_env);
 		/* Evaluating in a expanded environment */
 		Object result = eval(proc->get_body());	
-#if 1
+
 		/* Update static environment of proc */
 		proc_env = proc->get_env();
 		for (auto &pair : proc_env) {
 			proc->set_env(pair.first, envs.back()[pair.first]);
 		}
-#endif
+
 		/* Remove static environment of proc from envs */
 		remove_env();
 
@@ -398,6 +424,9 @@ Object eval_define(vector<string>& exp)
 		string proc_name = exp[1];
 		ret = proc_name;
 		/* delete procedure name, {(square x), (* x x)} --> {(x), (* x x)} */
+#ifdef SHOW_ERASE_INFO
+		cout << "erase 5";
+#endif
 		exp.erase(exp.begin() + 1); 
 		(*curr_env)[proc_name] = eval_lambda(exp, proc_name);
 	}
@@ -539,18 +568,20 @@ Object eval_let(vector<string>& exp)
 {
 	if (exp.empty())
 		error_handler("ERROR(scheme): ill-formed special from: let");
-	
+
 	/* Split exp into vars, exps and body */
 	vector<string> pairs_of_vars_and_exps = get_subexp(exp);
 	vector<string> body = exp;
 
-	delete_ends_parentheses(pairs_of_vars_and_exps);
 	vector<string> vars, exps;
+	delete_ends_parentheses(pairs_of_vars_and_exps);
 	while (!pairs_of_vars_and_exps.empty()) {
 		/* one_pair: (<var> <exp>) */
 		vector<string> one_pair = get_subexp(pairs_of_vars_and_exps); 
-		vars.push_back(one_pair[1]);
-		exps.push_back(one_pair[2]);
+		delete_ends_parentheses(one_pair);
+		assert(one_pair.size() >= 2);
+		vars.push_back(get_single(one_pair));
+		exps.insert(exps.end(), one_pair.begin(), one_pair.end());
 	}
 
 	/* Convert to "lambda" expression */
@@ -584,9 +615,13 @@ Object eval_cond(vector<string>& exp)
 		delete_ends_parentheses(first_clause);
 
 		if (first_clause[0] == "else") {
-			if (exp.empty())
+			if (exp.empty()) {
+#ifdef SHOW_ERASE_INFO
+				cout << "erase 6";
+#endif
 				/* Delete "else" */
 				first_clause.erase(first_clause.begin());
+			}
 			else
 				/* There are exps after "else" expression */
 				error_handler("ERROR(scheme): else clause isn't last -- cond");

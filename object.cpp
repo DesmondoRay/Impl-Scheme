@@ -17,8 +17,10 @@ void Object::copy_inner(const Object& ob)
 		proc = ob.get_proc();
 	else if (type == CONS)
 		cons = ob.get_cons();
+#ifdef USE_LIST
 	else if (type == LIST)
 		lst = ob.get_list();
+#endif
 }
 
 Object::Object(const Object& ob) : type(ob.get_type()) {
@@ -66,8 +68,10 @@ bool Object::operator==(const Object& ob) {
 		return proc == ob.get_proc();
 	else if (type == CONS)
 		return cons == ob.get_cons();
+#ifdef USE_LIST
 	else if (type == LIST)
 		return lst == ob.get_list();
+#endif
 	return true; // UNASSIGNED
 }
 
@@ -77,13 +81,6 @@ bool Object::operator<(const Object& ob) {
 
 bool Object::operator>(const Object& ob) {
 	return operator_inner(ob, ">");
-}
-
-Object::Object(const string& s, int t) : type(t), str(s) {
-	if (t != KEYWORD) {
-		error_handler("ERROR(runtime): t must be KEYWORD "
-			"-- Constructor: Object(const string& s, int t)");
-	}
 }
 
 static vector<string> type_str{

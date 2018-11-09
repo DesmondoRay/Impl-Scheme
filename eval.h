@@ -6,6 +6,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
+#include <cassert>
 using namespace std;
 
 #include "object.h"

@@ -230,6 +230,15 @@ static void test_primitive_3()
 	TEST("(not #f)", Object(true));
 	TEST("(not 1)", Object(false));
 	TEST("(not 0)", Object(false));
+
+	TEST("(or 1 2 3)", Object(true));
+	TEST("(or #f #f #f #t #f)", Object(true));
+	TEST("(or #f #f)", Object(false));
+	TEST("(or #t #t)", Object(true));
+
+	TEST("(and #t #t 1)", Object(true));
+	TEST("(and #t #t #f #t)", Object(false));
+	TEST("(and #f #f 1)", Object(false));
 }
 
 /* Test cons(pair) and list */
@@ -248,6 +257,13 @@ static void test_cons_list()
 	TEST("(cdar c)", Object(2));
 	TEST("(cadr c)", Object(3));
 	TEST("(cddr c)", Object(4));
+
+	/* Test map */
+	load_code("(define lst (list 2 3 4))");
+	/* map_lst: (4 9 16) */
+	load_code("(define map_lst (map (lambda (x) (* x x)) lst))"); 
+	TEST("(car map_lst)", Object(4));
+	TEST("(cadr map_lst)", Object(9));
 }
 
 /* Test define expression */
@@ -394,15 +410,18 @@ static void load_file(const string& filename)
 /* Test load code from file */
 static void test_load_file()
 {
+#if 0
 	load_file("F:/Git/Learning/impl_scheme/test_file/test1.scm");
 	load_file("F:/Git/Learning/impl_scheme/test_file/test2.scm");
 	/* Nested loading, evaluator need to load test3_2.scm in test3_1.scm */
 	load_file("F:/Git/Learning/impl_scheme/test_file/test3_1.scm");
+#endif
+	load_file("F:/Git/Learning/impl_scheme/test_file/test4/test4.scm");
 }
 
 void run_test()
 {
-#if 1
+#if 0
 	test_io();
 	test_primitive_1();
 	test_define();
