@@ -417,11 +417,12 @@ static void test_load_file()
 	load_file("F:/Git/Learning/impl_scheme/test_file/test3_1.scm");
 #endif
 	load_file("F:/Git/Learning/impl_scheme/test_file/test4/test4.scm");
+	// load_file("F:/Git/Learning/impl_scheme/test_file/test5/test5.scm");
 }
 
 void run_test()
 {
-#if 0
+#if 1
 	test_io();
 	test_primitive_1();
 	test_define();

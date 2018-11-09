@@ -11,7 +11,7 @@
 #include <memory>
 using namespace std;
 
-// #define USE_LIST
+#define USE_LIST
 
 class Procedure;
 class Cons;
@@ -39,7 +39,7 @@ public:
 		type(PROCEDURE), proc(make_shared<Procedure>(p)) {}
 	explicit Object(const Cons& c) : 
 		type(CONS), cons(make_shared<Cons>(c)) {}
-#ifdef USE_LIST
+#ifndef USE_LIST
 	explicit Object(const List& l) : 
 		type(LIST), lst(make_shared<List>(l)) {}
 #endif
@@ -63,7 +63,7 @@ public:
 	string get_string() const { return str; }
 	shared_ptr<Procedure> get_proc() const { return proc; }
 	shared_ptr<Cons> get_cons() const { return cons; };
-#ifdef USE_LIST
+#ifndef USE_LIST
 	shared_ptr<List> get_list() const { return lst; }
 #endif
 	/* Used to operator< and operator> */
@@ -80,7 +80,7 @@ private:
 	string					str;
 	shared_ptr<Procedure>	proc;
 	shared_ptr<Cons>		cons;
-#ifdef USE_LIST
+#ifndef USE_LIST
 	shared_ptr<List>		lst;
 #endif
 };
@@ -192,7 +192,7 @@ public:
 
 	/* Others */
 	Object car() { return lst.front(); }
-#ifdef USE_LIST
+#ifndef USE_LIST
 	Object cdr() {
 		auto it = lst.begin();
 		return Object(vector<Object>(++it, lst.end())); 

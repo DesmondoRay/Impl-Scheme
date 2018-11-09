@@ -90,7 +90,7 @@ Object Primitive::is_pair(vector<Object>& obs)
 		error_handler("ERROR(schem): requires exactly 1 argument -- pair?");
 	
 	bool ret = (obs[0].get_type() == CONS
-#ifdef USE_LIST
+#ifndef USE_LIST
 		|| obs[0].get_type() == LIST
 #endif
 		);
@@ -505,7 +505,7 @@ Object Primitive::display(vector<Object>& obs)
 		case NIL:
 			cout << "'()";
 			break;
-#ifdef USE_LIST
+#ifndef USE_LIST
 		case LIST:
 			cout << "(";
 			for (auto &ob : ob.get_list()->lst)

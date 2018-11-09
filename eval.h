@@ -40,9 +40,6 @@ void run_evaluator(istream &in, int mode = 0);
 /* Evaluating a expression. */
 Object eval(vector<string>& split);
 
-/* Delete parentheses of two ends */
-void delete_ends_parentheses(vector<string>& split);
-
 /* Evaluating a single string. */
 Object eval(string& str);
 

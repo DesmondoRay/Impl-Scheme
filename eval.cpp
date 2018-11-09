@@ -1,6 +1,7 @@
 /* Implement of evaluator's functions */
 
 #include "eval.h"
+void load_code(const string& code);
 
 //#define SHOW_ERASE_INFO
 
@@ -85,7 +86,12 @@ void initialize_environment()
 
 	for (auto &proc : procs)
 		envs[0][proc.first] = Object(Procedure(proc.second, proc.first));
-	envs[0]["nil"] = Object("nil");
+	envs[0]["#t"] = Object(true);
+	envs[0]["#f"] = Object(false);
+
+	/* Preheating evaluator */
+	load_code(string("(define (f) (+ 1 2))\n"));
+	load_code(string("(f)\n"));
 }
 
 /* Reset environment, restart evaluator then */
@@ -158,23 +164,30 @@ static vector<string> get_subexp(vector<string>& split)
 		split[i] == "(" ? cntParantheses++ : 1;
 	}
 	vector<string> result(split.begin(), split.begin() + i);
-#ifdef SHOW_ERASE_INFO
-	cout << "erase 2";
-#endif
 	split.erase(split.begin(), split.begin() + i);
 
 	return result;
 }
+
 /* Get a single variable */
 static string get_single(vector<string>& split)
 {
 	string result = split[0];
-#ifdef SHOW_ERASE_INFO
-	cout << "erase 3";
-#endif
 	split.erase(split.begin());
 
 	return result;
+}
+
+/* Delete parentheses of two ends */
+static void delete_ends_parentheses(vector<string>& split)
+{
+	if (split.empty())
+		return;
+
+	if (split[0] == "(") {
+		split.pop_back();
+		split.erase(split.begin());
+	}
 }
 
 /* Evaluating a expression. */
@@ -236,27 +249,11 @@ Object eval(vector<string>& split)
 	}
 }
 
-/* Delete parentheses of two ends */
-void delete_ends_parentheses(vector<string>& split)
-{
-	if (split.empty())
-		return;
-
-	if (split[0] == "(") {
-		split.pop_back();
-#ifdef SHOW_ERASE_INFO
-		cout << "erase 4";
-#endif
-		if (!split.empty())
-			split.erase(split.begin());
-	}
-}
-
 /* Evaluating a single object. */
 Object eval(string& str)
 {
 	/* NUMBER or REAL */
-	if (isdigit(str[0]) || (str.size() > 1 && str[0] == '-' && isdigit(str[1]))) 
+	if (isdigit(str[0]) || (str.size() > 1 && str[0] == '-' && isdigit(str[1])))
 	{
 		if (str.find('.') != string::npos) {
 #ifndef NDEBUG
@@ -267,17 +264,13 @@ Object eval(string& str)
 		else
 			return Object(stoi(str));
 	}
-	/* BOOLEAN, true: '#t', false: '#f' */
-	else if (str[0] == '#') {
-		if (str[1] == 't')
-			return Object(true);
-		else if (str[1] == 'f')
-			return Object(false);
-	}
 	/* STRING */
 	else if (str[0] == '"') {
 		return Object(str);
 	}
+	/* Symbol */
+	else if (str[0] == '\'')
+		return Object(str);
 	/* KEYWORD or PROCEDURE(or variable) */
 	/* example: "(define a 3)" --> variable: a, add "a" to envs, envs["a"] = 3 */
 	else {
@@ -292,6 +285,9 @@ Object eval(string& str)
 			cout << "DEBUG eval(): " << str << " " << envs.size() << endl;
 #endif
 			for (auto it = envs.rbegin(); it != envs.rend(); ++it) {
+#ifdef SHOW_ITERATOR_INFO
+				cout << "iterator 1" << endl;
+#endif
 				if (it->find(str) != it->end())
 					return (*it)[str];
 			}

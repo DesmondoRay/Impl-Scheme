@@ -23,10 +23,6 @@ int main(int argc, char **argv)
 	run_test();
 #endif
 
-	/* Preheating evaluator */
-	load_code(string("(define (f) (+ 1 2))\n"));
-	load_code(string("(f)\n"));
-
 	if (argc == 1)
 		run_evaluator(std::cin);
 	else {
@@ -40,19 +36,3 @@ int main(int argc, char **argv)
 	
 	return 0;
 }
-
-/*
-(define (f) (* 1 2))
-(f)
-
-(define (make-withdraw balance)
-(lambda (amount)
-(if (>= balance amount)
-(begin (set! balance (- balance amount))
-balance)
-\"Insufficient funds\")))
-
-(define w1 (make-withdraw 100))
-(w1 34)
-(w1 34)
-*/
