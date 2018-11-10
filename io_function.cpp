@@ -144,3 +144,14 @@ void load_code(const string& code)
 	vector<string> split = split_input(input);
 	Object result = eval(split);
 }
+
+/* Evaluatoe code from file */
+void load_file(const string& filename)
+{
+	string code("(load \"");
+	code += filename + "\")\n";
+	istringstream iss(code);
+	string input = get_input(iss);
+	vector<string> split = split_input(input);
+	eval(split);
+}

@@ -26,4 +26,7 @@ void error_handler(const string& msg);
 /* Evaluate expression from a string */
 void load_code(const string& code);
 
+/* Evaluatoe code from file */
+void load_file(const string& filename);
+
 #endif

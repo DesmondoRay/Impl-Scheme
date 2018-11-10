@@ -393,17 +393,6 @@ static void test_set()
 	TEST("(w2 200)", Object("\"Insufficient funds\""));
 }
 
-/* Test evaluate code from file */
-static void load_file(const string& filename)
-{
-	string code("(load \"");
-	code += filename + "\")\n";
-	istringstream iss(code);
-	string input = get_input(iss);
-	vector<string> split = split_input(input);
-	Object result = eval(split);
-}
-
 /* Test load code from file */
 static void test_load_file()
 {
