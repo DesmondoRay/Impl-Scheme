@@ -1,8 +1,6 @@
 ## Implementation of Scheme in C++
 
-- DesmondoRay
-- 2018/11/5
-- Windows: Visual Studio 2015
+Compiler: Visual Studio 2015
 
 This program is basic scheme interpreter. It consists of four major parts: Object, Io_function, Primitive_procedures, Eval.
 
@@ -28,3 +26,6 @@ Compound-procedure consists of three parts: parameters, body and environment, on
 - (load "path/filename") to load code from files
 - (reset) to reset environment and restart evaluator
 
+
+DesmondoRay
+2018/11/5
