@@ -1,4 +1,4 @@
-;;; test3_1.scm
+;;; SICP exercise 1.46 a
 
 (load "F:/Git/Learning/impl_scheme/test_file/test3_2.scm")
 

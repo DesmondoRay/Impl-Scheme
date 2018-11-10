@@ -20,4 +20,10 @@ string get_input(istream &in);
 /* Split input string and store them in a vector<string>. */
 vector<string> split_input(string& input);
 
+/* Handler error */
+void error_handler(const string& msg);
+
+/* Evaluate expression from a string */
+void load_code(const string& code);
+
 #endif

@@ -1,4 +1,4 @@
-;;; 2.2.3节 (第78页)
+;;; SICP chapter 2.2.3, page 78
 
 (define (accumulate op initial sequence)
   (if (null? sequence)

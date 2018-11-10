@@ -27,9 +27,6 @@ void initialize_environment();
 /* Reset evaluator, reset environment */
 void reset_evaluator();
 
-/* Handler error */
-void error_handler(const string& s);
-
 /* Evaluator start. */
 /* mode == 0: print prompt and value, such as ">>> Eval value: a";
  * mode == 1: don't print prompt and value, used to evaluate code from file.

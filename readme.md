@@ -8,7 +8,7 @@ This program is basic scheme interpreter. It consists of four major parts: Objec
 - An Object saves the basic datas of Scheme, include integer, real, boolean, string(symbol), procedure and pair.  
 - A Procedure can represent primitive-procedure and compound-procedure.  
 Primitive-procedure is a function pointer;  
-Compound-procedure consists of three parts: parameters, body and environment, only some special compound-procedure have their own environment, reference SICP page 150(Chinese version) or page 297(English version).k
+Compound-procedure consists of three parts: parameters, body and environment, only some special compound-procedure have their own environment, reference SICP page 150(Chinese version) or page 297(English version).
 
 ### Io_function
 - Get input from string, std::cin and files

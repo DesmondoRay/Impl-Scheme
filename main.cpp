@@ -1,10 +1,6 @@
 /* Main */
 
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <unordered_map>
 using namespace std;
 
 #include "object.h"
@@ -13,7 +9,6 @@ using namespace std;
 
 /* test.cpp */
 void run_test();
-void load_code(const string& code);
 
 int main(int argc, char **argv)
 {

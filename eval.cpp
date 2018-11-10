@@ -1,7 +1,6 @@
 /* Implement of evaluator's functions */
 
 #include "eval.h"
-void load_code(const string& code);
 
 //#define SHOW_ERASE_INFO
 
@@ -99,24 +98,6 @@ void reset_evaluator()
 {
 	initialize_environment();
 	run_evaluator(cin);
-}
-
-/* Handler error */
-void error_handler(const string& msg)
-{
-	cerr << msg << endl;
-	cout << "Input [Enter] or [Y/y] to continue and input others to quit: ";
-	char input = getchar();
-	/* Delete extra characters */
-	if (input != '\n')
-		while (getchar() != '\n') continue;
-	if (input == '\n' || input == 'y' || input == 'Y')
-		run_evaluator(cin);
-	else {
-		cout << "Bye! Press any key to quit." << endl;
-		input = getchar();
-		exit(0);
-	}
 }
 
 /* Print Scheme prompt for input. */

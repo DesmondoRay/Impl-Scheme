@@ -39,18 +39,8 @@ static void test_io()
 	} ? test_pass++ : 1;
 }
 
-void load_code(const string& code)
-{
-	string copy(code);
-	copy.push_back('\n');
-	istringstream iss(copy);
-	string input = get_input(iss);
-	vector<string> split = split_input(input);
-	Object result = eval(split);
-}
-
 /* Report_error, for example:
- * <TEST ERROR> line: 72, expect: { integer, 8 }, actual: { integer, 7 }
+ * <TEST ERROR> line: 69, expect: { integer, 8 }, actual: { integer, 7 }
  */
 #define REPORT_ERROR(actual, expect) \
 	do {\
@@ -258,6 +248,13 @@ static void test_cons_list()
 	TEST("(cadr c)", Object(3));
 	TEST("(cddr c)", Object(4));
 
+	load_code("(define a (append '(1) '(2 3)))");
+	load_code("(define b (append '() '(5 6)))");
+	TEST("(car a)", Object(1));
+	TEST("(car b)", Object(5));
+	TEST("(cadr a)", Object(2));
+	TEST("(cadr b)", Object(6));
+
 	/* Test map */
 	load_code("(define lst (list 2 3 4))");
 	/* map_lst: (4 9 16) */
@@ -410,14 +407,14 @@ static void load_file(const string& filename)
 /* Test load code from file */
 static void test_load_file()
 {
-#if 0
 	load_file("F:/Git/Learning/impl_scheme/test_file/test1.scm");
 	load_file("F:/Git/Learning/impl_scheme/test_file/test2.scm");
+
 	/* Nested loading, evaluator need to load test3_2.scm in test3_1.scm */
 	load_file("F:/Git/Learning/impl_scheme/test_file/test3_1.scm");
-#endif
+
+	/* Nested loading */
 	load_file("F:/Git/Learning/impl_scheme/test_file/test4/test4.scm");
-	// load_file("F:/Git/Learning/impl_scheme/test_file/test5/test5.scm");
 }
 
 void run_test()
@@ -437,7 +434,7 @@ void run_test()
 #endif
 	test_load_file();
 
-	cout << "test counts: " << test_cnts << " test pass: " << test_pass << endl;
+	cout << "test counts: " << test_cnts << ", test pass: " << test_pass << endl;
 
 	return;
 }

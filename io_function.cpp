@@ -2,6 +2,7 @@
 
 #include "io_function.h"
 #include "primitive_procedures.h"
+#include "eval.h"
 
 /* Print evaluation result. */
 void print_result(const Object& ob, int mode)
@@ -113,4 +114,33 @@ vector<string> split_input(string& input)
 #endif
 	convert_to_list(split);
 	return split;
+}
+
+/* Handler error */
+void error_handler(const string& msg)
+{
+	cerr << msg << endl;
+	cout << "Input [Enter] or [Y/y] to continue and input others to quit: ";
+	char input = getchar();
+	/* Delete extra characters */
+	if (input != '\n')
+		while (getchar() != '\n') continue;
+	if (input == '\n' || input == 'y' || input == 'Y')
+		run_evaluator(cin);
+	else {
+		cout << "Bye! Press any key to quit." << endl;
+		input = getchar();
+		exit(0);
+	}
+}
+
+/* Evaluate expression from a string */
+void load_code(const string& code)
+{
+	string copy(code);
+	copy.push_back('\n');
+	istringstream iss(copy);
+	string input = get_input(iss);
+	vector<string> split = split_input(input);
+	Object result = eval(split);
 }

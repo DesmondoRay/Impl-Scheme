@@ -1,4 +1,4 @@
-;;; exercise 2.42
+;;; SICP exercise 2.42
 
 (load "F:/Git/Learning/impl_scheme/test_file/test4/p42-adjoin-position.scm")
 (load "F:/Git/Learning/impl_scheme/test_file/test4/p42-safe.scm")
