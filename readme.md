@@ -1,8 +1,8 @@
 ## Implementation of Scheme in C++
 
-Compiler: Visual Studio 2015
+This program is basic scheme interpreter. It consists of four major parts: Object, Io_function, Primitive_procedures, Eval.  
 
-This program is basic scheme interpreter. It consists of four major parts: Object, Io_function, Primitive_procedures, Eval.
+Compiler: Visual Studio 2015
 
 ### Object 
 - An Object saves the basic datas of Scheme, include integer, real, boolean, string(symbol), procedure and pair.  
