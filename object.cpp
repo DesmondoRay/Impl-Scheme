@@ -17,7 +17,7 @@ void Object::copy_inner(const Object& ob)
 		proc = ob.get_proc();
 	else if (type == CONS)
 		cons = ob.get_cons();
-#ifndef USE_LIST
+#ifdef USE_LIST
 	else if (type == LIST)
 		lst = ob.get_list();
 #endif
@@ -68,7 +68,7 @@ bool Object::operator==(const Object& ob) {
 		return proc == ob.get_proc();
 	else if (type == CONS)
 		return cons == ob.get_cons();
-#ifndef USE_LIST
+#ifdef USE_LIST
 	else if (type == LIST)
 		return lst == ob.get_list();
 #endif
