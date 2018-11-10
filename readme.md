@@ -27,5 +27,5 @@ Compound-procedure consists of three parts: parameters, body and environment, on
 - (reset) to reset environment and restart evaluator
 
 
-DesmondoRay
+DesmondoRay  
 2018/11/5
