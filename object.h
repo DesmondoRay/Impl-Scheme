@@ -98,9 +98,6 @@ public:
 	/* Constructor */
 	Procedure() : type(UNKNOWN) {}
 
-	// Procedure(const Procedure& p) = delete;
-	Procedure& operator==(const Procedure& p) = delete;
-
 	/* Primitive procedure constructor */
 	Procedure(Object(*f)(vector<Object>&), const string& proc_name) :
 		type(PRIMITIVE), name(proc_name), func(f), parameters({}), body({}),
